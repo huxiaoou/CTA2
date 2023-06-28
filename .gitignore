@@ -1,0 +1,5 @@
+__pycache__
+./custom/__pycache__
+./ic_tests/__pycache__
+./simulations/__pycache__
+.idea
