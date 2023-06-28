@@ -3,7 +3,7 @@ from setup_factor_and_portfolio import calendar_path
 from setup_factor_and_portfolio import signals_dir, misc_dir
 from setup_factor_and_portfolio import signals_allocation_dir
 from config_portfolio import allocation_options
-from lib_data_structure_portfolio import database_structure
+from struct_lib_portfolio import database_structure
 from skyrim.whiterun import CCalendar
 from skyrim.falkreath import CManagerLibReader, CManagerLibWriterByDate
 import argparse

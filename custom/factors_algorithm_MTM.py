@@ -13,19 +13,19 @@ def factors_algorithm_MTM(
         factors_exposure_dir: str,
         md_bgn_date: str,
         md_stp_date: str,
-        index_dir: str,
+        major_return_dir: str,
+        price_type: str = "close",
         return_scale: int = 100,
 ):
     factor_lbl = "MTM{:03d}".format(mtm_window)
 
     all_factor_data = {}
     for instrument in concerned_instruments_universe:
-        instrument_file = "{}.index.csv.gz".format(instrument)
-        instrument_path = os.path.join(index_dir, instrument_file)
-        instrument_df = pd.read_csv(instrument_path, dtype={"trade_date": str}).set_index("trade_date")
-        instrument_df["major_return"] = (instrument_df["instru_idx"] / instrument_df["instru_idx"].shift(1).fillna(method="bfill") - 1) * return_scale
-        instrument_df[factor_lbl] = instrument_df["major_return"].rolling(window=mtm_window).apply(cal_period_return, args=(return_scale,), raw=True)
-        all_factor_data[instrument] = instrument_df[factor_lbl]
+        major_return_file = "major_return.{}.{}.csv.gz".format(instrument, price_type)
+        major_return_path = os.path.join(major_return_dir, major_return_file)
+        major_return_df = pd.read_csv(major_return_path, dtype={"trade_date": str}).set_index("trade_date")
+        major_return_df[factor_lbl] = major_return_df["major_return"].rolling(window=mtm_window).apply(cal_period_return, args=(return_scale,), raw=True)
+        all_factor_data[instrument] = major_return_df[factor_lbl]
 
     # --- reorganize
     all_factor_df = pd.DataFrame(all_factor_data)

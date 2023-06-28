@@ -3,7 +3,7 @@ from setup_factor_and_portfolio import calendar_path, available_universe_dir, fa
 from config_factor import instruments_universe_options, universe_id
 from config_factor import sector_classification
 from config_factor import factors_list, neutral_method
-from lib_data_structure import database_structure
+from struct_lib import database_structure
 from custom.XFuns import neutralize_by_sector, transform_dist
 from skyrim.whiterun import CCalendar
 from skyrim.falkreath import CManagerLibReader, CManagerLibWriterByDate

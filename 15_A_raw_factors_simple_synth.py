@@ -4,7 +4,7 @@ from setup_factor_and_portfolio import available_universe_dir, factors_exposure_
 from setup_factor_and_portfolio import signals_allocation_dir
 from config_portfolio import instruments_universe_options, universe_id
 from config_portfolio import synth_options
-from lib_data_structure_portfolio import database_structure
+from struct_lib_portfolio import database_structure
 from typing import Dict
 from skyrim.whiterun import CCalendar
 from skyrim.falkreath import CManagerLibReader, CManagerLibWriterByDate

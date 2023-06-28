@@ -3,7 +3,7 @@ from setup_factor_and_portfolio import factors_return_dir, factors_return_reform
 from config_factor import neutral_method
 from config_portfolio import pid, available_factors_list
 from config_portfolio import factors_return_lag
-from lib_data_structure import database_structure
+from struct_lib import database_structure
 from skyrim.falkreath import CManagerLibReader
 
 test_window = int(sys.argv[1])

@@ -1,7 +1,7 @@
 from setup_factor_and_portfolio import os, dt, np, pd
 from setup_factor_and_portfolio import instruments_return_dir, available_universe_dir
 from skyrim.falkreath import CManagerLibReader
-from lib_data_structure import database_structure
+from struct_lib import database_structure
 
 print("... {} market index return calculating".format(dt.datetime.now()))
 

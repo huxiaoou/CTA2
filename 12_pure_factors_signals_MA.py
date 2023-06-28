@@ -5,7 +5,7 @@ from config_factor import neutral_method, RETURN_SCALE
 from config_portfolio import pid, factors_return_lag
 from config_portfolio import timing_factors_list
 from config_portfolio import fast_n_slow_n_comb
-from lib_data_structure_portfolio import database_structure
+from struct_lib_portfolio import database_structure
 from skyrim.whiterun import CCalendar
 from skyrim.falkreath import CManagerLibReader, CManagerLibWriterByDate
 import argparse

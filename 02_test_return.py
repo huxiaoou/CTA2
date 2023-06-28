@@ -1,7 +1,7 @@
 from setup_factor_and_portfolio import os, dt, pd
 from setup_factor_and_portfolio import instruments_return_dir, test_return_dir
 from config_factor import test_window_list, RETURN_SCALE
-from lib_data_structure import database_structure
+from struct_lib import database_structure
 from custom.XFuns import cal_period_return
 from skyrim.falkreath import CManagerLibWriterByDate
 import argparse

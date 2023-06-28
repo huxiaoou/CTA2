@@ -7,7 +7,7 @@ from setup_factor_and_portfolio import test_ic_dir, factors_delinear_test_ic_dir
 from config_factor import factors_list, test_window_list, factors_return_lag_list
 from config_factor import factors_bgn_date, test_lag, neutral_method
 from config_factor import factors_pool_bgn_date, factors_pool_options
-from lib_data_structure import database_structure
+from struct_lib import database_structure
 from custom.XFuns import fun_for_factors_return_agg
 from ic_tests.ic_test_single_factor import ic_test_single_factor
 from ic_tests.ic_test_single_factor_neutral import ic_test_single_factor_neutral

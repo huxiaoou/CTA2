@@ -5,7 +5,7 @@ from setup_factor_and_portfolio import calendar_path
 from config_factor import neutral_method
 from config_factor import sector_classification, universe_id
 from config_factor import instruments_universe_options, factors_pool_options
-from lib_data_structure import database_structure
+from struct_lib import database_structure
 from skyrim.whiterun import CCalendar
 from skyrim.falkreath import CManagerLibReader
 from skyrim.winterhold import plot_lines

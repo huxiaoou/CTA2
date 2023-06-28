@@ -1,6 +1,6 @@
 from config_portfolio import available_factors_list, timing_factors_list, fast_n_slow_n_comb, allocation_options, synth_options
 from config_portfolio import test_window_list
-from lib_data_structure import database_structure, CLib1Tab1, CTable, ittl
+from struct_lib import database_structure, CLib1Tab1, CTable, ittl
 
 # update @ 2022-11-16
 pure_factors_list = ["pure_factors_VANILLA.{}.TW{:03d}".format(f, tw) for f, tw in ittl.product(available_factors_list, test_window_list)]

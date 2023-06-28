@@ -10,10 +10,6 @@ import os
 import sys
 import json
 import platform
-import numpy as np
-import pandas as pd
-import datetime as dt
-import itertools as ittl
 
 # platform confirmation
 this_platform = platform.system().upper()
@@ -51,13 +47,11 @@ futures_fundamental_db_name = global_config["futures"]["fundamental_db_name"]
 futures_by_instrument_dir = os.path.join(futures_dir, global_config["futures"]["by_instrument_dir"])
 major_minor_dir = os.path.join(futures_by_instrument_dir, global_config["futures"]["major_minor_dir"])
 major_return_dir = os.path.join(futures_by_instrument_dir, global_config["futures"]["major_return_dir"])
-instru_idx_dir = os.path.join(futures_by_instrument_dir, global_config["futures"]["instru_idx_dir"])
 md_by_instru_dir = os.path.join(futures_by_instrument_dir, global_config["futures"]["md_by_instru_dir"])
 fundamental_by_instru_dir = os.path.join(futures_by_instrument_dir, global_config["futures"]["fundamental_by_instru_dir"])
 
-factors_library_dir = os.path.join(futures_dir, global_config["futures"]["signals_dir"])
+factors_library_dir = os.path.join(futures_dir, global_config["futures"]["cta_dir"])
 instruments_return_dir = os.path.join(factors_library_dir, "instruments_return")
-instruments_corr_dir = os.path.join(factors_library_dir, "instruments_corr")
 available_universe_dir = os.path.join(factors_library_dir, "available_universe")
 test_return_dir = os.path.join(factors_library_dir, "test_return")
 test_return_neutral_dir = os.path.join(factors_library_dir, "test_return_neutral")
@@ -85,15 +79,11 @@ signals_opt_dir = os.path.join(portfolio_dir, "signals_opt")
 simulations_opt_dir = os.path.join(portfolio_dir, "simulations_opt")
 evaluations_opt_dir = os.path.join(portfolio_dir, "evaluations_opt")
 
-# --- projects
-projects_dir = os.path.join(deploy_dir, global_config["projects"]["projects_save_dir"])
-
 if __name__ == "__main__":
     from skyrim.winterhold import check_and_mkdir
 
     check_and_mkdir(factors_library_dir)
     check_and_mkdir(instruments_return_dir)
-    check_and_mkdir(instruments_corr_dir)
     check_and_mkdir(available_universe_dir)
     check_and_mkdir(test_return_dir)
     check_and_mkdir(test_return_neutral_dir)

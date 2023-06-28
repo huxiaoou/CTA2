@@ -2,7 +2,7 @@ from setup_factor_and_portfolio import dt, os, pd
 from setup_factor_and_portfolio import available_universe_dir, major_return_dir
 from config_factor import concerned_instruments_universe, available_universe_rolling_window, available_universe_amt_threshold
 from config_factor import price_type, WANYUAN, YIYUAN, test_window_list
-from lib_data_structure import database_structure
+from struct_lib import database_structure
 from skyrim.falkreath import CManagerLibWriterByDate
 import argparse
 

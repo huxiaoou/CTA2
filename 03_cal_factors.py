@@ -1,6 +1,6 @@
 from setup_factor_and_portfolio import sys
 from setup_factor_and_portfolio import factors_exposure_dir
-from setup_factor_and_portfolio import instruments_return_dir, major_minor_dir, major_return_dir, fundamental_by_instru_dir, md_by_instru_dir, instru_idx_dir
+from setup_factor_and_portfolio import instruments_return_dir, major_minor_dir, major_return_dir, fundamental_by_instru_dir, md_by_instru_dir
 from custom.factors_algorithm_BASIS import factors_algorithm_BASIS
 from custom.factors_algorithm_BETA import factors_algorithm_BETA
 from custom.factors_algorithm_CSP import factors_algorithm_CSP
@@ -21,7 +21,7 @@ from custom.factors_algorithm_TS import factors_algorithm_TS
 from custom.factors_algorithm_VOL import factors_algorithm_VOL
 from config_factor import concerned_instruments_universe, md_bgn_date
 from config_factor import factors_args_dict
-from lib_data_structure import database_structure
+from struct_lib import database_structure
 
 md_stp_date = sys.argv[1]  # format = "YYYYMMDD"
 
@@ -177,7 +177,7 @@ if switch["MTM"]:
             factors_exposure_dir=factors_exposure_dir,
             md_bgn_date=md_bgn_date,
             md_stp_date=md_stp_date,
-            index_dir=instru_idx_dir,
+            major_return_dir=major_return_dir,
         )
 
 if switch["RSW"]:

@@ -8,7 +8,7 @@ from skyrim.falkreath import CManagerLibReader, CManagerLibWriterByDate
 from config_factor import test_window_list
 from config_portfolio import minimum_abs_weight
 from config_portfolio import timing_factors_list, fast_n_slow_n_comb
-from lib_data_structure_portfolio import database_structure
+from struct_lib_portfolio import database_structure
 import argparse
 
 args_parser = argparse.ArgumentParser(description="To update available universe")

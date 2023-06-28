@@ -13,7 +13,7 @@ from config_portfolio import available_factors_list, selected_sectors_list, sele
 from config_portfolio import allocation_options, synth_options
 from config_portfolio import fast_n_slow_n_comb, timing_factors_list
 from config_portfolio import risk_free_rate, cost_rate, cost_reservation, init_premium
-from lib_data_structure_portfolio import database_structure
+from struct_lib_portfolio import database_structure
 from simulations.XFuns import fun_for_simulation_factors
 from simulations.evaluation import evaluation_single_factor
 from simulations.evaluation_by_year import evaluation_single_factor_by_year

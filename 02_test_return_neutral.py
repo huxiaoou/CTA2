@@ -2,7 +2,7 @@ from setup_factor_and_portfolio import dt, np, pd
 from setup_factor_and_portfolio import calendar_path, available_universe_dir, test_return_dir, test_return_neutral_dir
 from config_factor import test_window_list, instruments_universe_options, universe_id, neutral_method
 from config_factor import sector_classification
-from lib_data_structure import database_structure
+from struct_lib import database_structure
 from skyrim.falkreath import CManagerLibReader, CManagerLibWriterByDate
 from skyrim.whiterun import CCalendar
 from custom.XFuns import neutralize_by_sector
