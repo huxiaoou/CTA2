@@ -13,10 +13,12 @@ def cal_test_return(test_windows: list[int],
                     calendar_path: str,
                     database_structure: dict[str, CLib1Tab1],
                     ret_scale: int = 100):
+    # set dates
     calendar = CCalendar(calendar_path)
-    base_date = calendar.get_next_date(bgn_date, -max(test_windows) + 1)
     if stp_date is None:
         stp_date = (dt.datetime.strptime(bgn_date, "%Y%m%d") + dt.timedelta(days=1)).strftime("%Y%m%d")
+    iter_dates = calendar.get_iter_list(bgn_date, stp_date, True)
+    base_date = calendar.get_next_date(iter_dates[0], -max(test_windows) + 1)
 
     # load raw return
     raw_return_file = "instruments.return.csv.gz"

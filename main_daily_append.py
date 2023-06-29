@@ -13,7 +13,7 @@ print(sep)
 sp.run(["python", "available_universe.py", "--mode", "a", "--bgn", trade_date])
 print(sep)
 
-sp.run(["python", "01_market_index.py"])
+sp.run(["python", "market_return.py"])
 print(sep)
 
 sp.run(["python", "test_return.py", "--mode", "a", "--bgn", trade_date])

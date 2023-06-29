@@ -1,26 +1,21 @@
-# from setup_factor_and_portfolio import dt, np, pd
-# from setup_factor_and_portfolio import calendar_path, available_universe_dir, test_return_dir, test_return_neutral_dir
-# from config_factor import test_window_list, instruments_universe_options, universe_id, neutral_method
-# from config_factor import sector_classification
-# from struct_lib import database_structure
-import os
 import datetime as dt
 import numpy as np
 import pandas as pd
-from skyrim.falkreath import CLib1Tab1, CManagerLibReader, CManagerLibWriter
+from skyrim.falkreath import CLib1Tab1, CManagerLibReader, CManagerLibWriterByDate
 from skyrim.whiterun import CCalendar
 from factors.XFuns import neutralize_by_sector
 
 
 def cal_test_return_neutral(
-        test_windows: list[int],
+        test_windows: list[int], neutral_method: str,
         run_mode: str, bgn_date: str, stp_date: str | None,
+        instruments_universe: list[str],
         available_universe_dir,
         sector_classification: dict[str, str],
         test_return_dir: str,
+        test_return_neutral_dir: str,
         calendar_path: str,
-        database_structure: dict[str, CLib1Tab1],
-        ret_scale: int = 100):
+        database_structure: dict[str, CLib1Tab1]):
     # --- calendar
     cne_calendar = CCalendar(t_path=calendar_path)
 
@@ -30,13 +25,12 @@ def cal_test_return_neutral(
     available_universe_lib.set_default(available_universe_lib_structure.m_tab.m_table_name)
 
     # --- mother universe
-    mother_universe = instruments_universe_options[universe_id]
-    mother_universe_df = pd.DataFrame({"instrument": mother_universe})
+    mother_universe_df = pd.DataFrame({"instrument": instruments_universe})
 
     # --- sector df
-    sector_df = pd.DataFrame.from_dict({z: {sector_classification[z]: 1} for z in mother_universe}, orient="index").fillna(0)
+    sector_df = pd.DataFrame.from_dict({z: {sector_classification[z]: 1} for z in instruments_universe}, orient="index").fillna(0)
 
-    for test_window in test_window_list:
+    for test_window in test_windows:
         weight_id = "WGT{:02d}".format(test_window)
 
         # --- test return library
@@ -59,7 +53,6 @@ def cal_test_return_neutral(
             )
             if len(test_return_df) == 0:
                 continue
-
             weight_df = available_universe_lib.read_by_date(
                 t_trade_date=trade_date,
                 t_value_columns=["instrument", weight_id]
@@ -77,13 +70,11 @@ def cal_test_return_neutral(
                 input_df[weight_id] = 1
             elif neutral_method == "WS":
                 input_df[weight_id] = np.sqrt(input_df[weight_id])
-
             test_return_neutral_srs = neutralize_by_sector(
                 t_raw_data=input_df["value"],
                 t_sector_df=sector_df,
                 t_weight=input_df[weight_id]
             )
-
             test_return_neutral_lib.update_by_date(
                 t_date=trade_date,
                 t_update_df=pd.DataFrame({"value": test_return_neutral_srs}),
@@ -92,7 +83,6 @@ def cal_test_return_neutral(
 
         test_return_lib.close()
         test_return_neutral_lib.close()
-
         print("... @ {} Neutralization for test return {:03d} of {} calculated".format(dt.datetime.now(), test_window, neutral_method))
 
     available_universe_lib.close()

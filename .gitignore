@@ -1,5 +1,7 @@
-__pycache__
-./custom/__pycache__
-./ic_tests/__pycache__
-./simulations/__pycache__
 .idea
+__pycache__
+factors/__pycache__
+ic_tests/__pycache__
+returns/__pycache__
+simulations/__pycache__
+*ps1

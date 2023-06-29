@@ -16,7 +16,7 @@ print(sep)
 sp.run(["python", "available_universe.py", "--mode", "o", "--bgn", fix_bgn_date, "--stp", md_stp_date])
 print(sep)
 
-sp.run(["python", "01_market_index.py"])
+sp.run(["python", "market_return.py"])
 print(sep)
 
 sp.run(["python", "test_return.py", "--mode", "o", "--bgn", md_bgn_date, "--stp", md_stp_date])
