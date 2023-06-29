@@ -2,8 +2,8 @@ import argparse
 from returns.instrument_return import merge_instru_return
 from returns.available_universe import cal_available_universe
 from returns.market_return import cal_market_return
-from returns.test_return import cal_test_return
-from returns.test_return_neutral import cal_test_return_neutral
+from returns.test_return import cal_test_return_mp
+from returns.test_return_neutral import cal_test_return_neutral_mp
 
 from setup_factor_and_portfolio import major_return_dir, \
     instruments_return_dir, available_universe_dir, \
@@ -27,8 +27,8 @@ if __name__ == "__main__":
             "returns/instrument_return": "20120101",
             "returns/available_universe": "20120301",
             "returns/market_return": None,
-            "returns/test_return": "20130101",
-            "returns/test_return_neutral": "20130101",
+            "returns/test_return": "20120301",
+            "returns/test_return_neutral": "20120301",
         }
         """)
     args_parser.add_argument("-s", "--stp", type=str, help="""
@@ -75,7 +75,8 @@ if __name__ == "__main__":
             database_structure=database_structure,
         )
     elif switch in ["TR"]:  # "TEST RETURN"
-        cal_test_return(
+        cal_test_return_mp(
+            proc_num=proc_num,
             test_windows=test_windows,
             run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
             instruments_return_dir=instruments_return_dir,
@@ -84,7 +85,8 @@ if __name__ == "__main__":
             database_structure=database_structure
         )
     elif switch in ["TRN"]:  # "TEST RETURN NEUTRAL"
-        cal_test_return_neutral(
+        cal_test_return_neutral_mp(
+            proc_num=proc_num,
             test_windows=test_windows, neutral_method=neutral_method,
             run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
             instruments_universe=concerned_instruments_universe,
