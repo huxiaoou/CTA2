@@ -62,8 +62,8 @@ def cal_factors_exposure_cv_mp(
 ):
     t0 = dt.datetime.now()
     pool = mp.Pool(processes=proc_num)
-    for p_window in cv_windows:
-        pool.apply_async(factors_algorithm_CV, args=(p_window,), kwds=kwargs)
+    for p in cv_windows:
+        pool.apply_async(factors_algorithm_CV, args=(p,), kwds=kwargs)
     pool.close()
     pool.join()
     t1 = dt.datetime.now()

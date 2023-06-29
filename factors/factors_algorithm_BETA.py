@@ -74,8 +74,8 @@ def cal_factors_exposure_beta_mp(
 ):
     t0 = dt.datetime.now()
     pool = mp.Pool(processes=proc_num)
-    for p_window in beta_windows:
-        pool.apply_async(factors_algorithm_BETA, args=(p_window,), kwds=kwargs)
+    for p in beta_windows:
+        pool.apply_async(factors_algorithm_BETA, args=(p,), kwds=kwargs)
     pool.close()
     pool.join()
     t1 = dt.datetime.now()
