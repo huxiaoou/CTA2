@@ -5,6 +5,7 @@ from returns.market_return import cal_market_return
 from returns.test_return import cal_test_return_mp
 from returns.test_return_neutral import cal_test_return_neutral_mp
 from factors.factors_algorithm_BASIS import cal_factors_exposure_basis_mp
+from factors.factors_algorithm_BETA import cal_factors_exposure_beta_mp
 
 from setup_factor_and_portfolio import major_return_dir, major_minor_dir, fundamental_by_instru_dir, \
     instruments_return_dir, available_universe_dir, \
@@ -55,7 +56,7 @@ if __name__ == "__main__":
     run_mode = args.mode.upper() if switch in ["AU", "TR", "TRN", "FE", "FEN"] else None
     bgn_date, stp_date = args.bgn, args.stp
     proc_num = args.process
-    factor = args.factor.lower()
+    factor = args.factor.upper()
 
     if switch in ["IR"]:  # "INSTRUMENT RETURN":
         merge_instru_return(
@@ -104,7 +105,7 @@ if __name__ == "__main__":
             database_structure=database_structure,
         )
     elif switch in ["FE"]:
-        if factor == "basis":
+        if factor == "BASIS":
             cal_factors_exposure_basis_mp(proc_num=proc_num, basis_windows=factors_args["BASIS"],
                                           run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
                                           concerned_instruments_universe=concerned_instruments_universe,
@@ -114,5 +115,15 @@ if __name__ == "__main__":
                                           calendar_path=calendar_path,
                                           database_structure=database_structure,
                                           )
-    else:
-        print(f"... switch = {switch} is not a legal option, please check again.")
+        if factor == "BETA":
+            cal_factors_exposure_beta_mp(proc_num=proc_num, beta_windows=factors_args["BETA"],
+                                         run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+                                         concerned_instruments_universe=concerned_instruments_universe,
+                                         factors_exposure_dir=factors_exposure_dir,
+                                         instruments_return_dir=instruments_return_dir,
+                                         major_return_dir=major_return_dir,
+                                         calendar_path=calendar_path,
+                                         database_structure=database_structure,
+                                         )
+        else:
+            print(f"... switch = {switch} is not a legal option, please check again.")
