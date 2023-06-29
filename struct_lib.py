@@ -1,7 +1,7 @@
-from setup_factor_and_portfolio import ittl
+import itertools as ittl
 from skyrim.falkreath import CLib1Tab1, CTable, Dict
-from config_factor import factors_pool_options, instruments_universe_options, universe_id, sector_classification
-from config_factor import test_window_list, factors_return_lag_list, factors_list, sectors_list
+from config_factor import factors_pool_options, sector_classification, concerned_instruments_universe
+from config_factor import test_windows, factors_return_lags, factors, factors_neutral, sectors
 
 # --- DATABASE STRUCTURE
 # available universe structure
@@ -13,13 +13,13 @@ database_structure: Dict[str, CLib1Tab1] = {
             "primary_keys": {"trade_date": "TEXT", "instrument": "TEXT"},
             "value_columns": {
                 **{"return": "REAL", "amount": "REAL"},
-                **{"WGT{:02d}".format(z): "REAL" for z in test_window_list}
+                **{"WGT{:02d}".format(z): "REAL" for z in test_windows}
             }
         })
     )}
 
 # test return structure
-test_return_lbl_list = ["test_return_{:03d}".format(w) for w in test_window_list]
+test_return_lbl_list = ["test_return_{:03d}".format(w) for w in test_windows]
 database_structure.update({
     z: CLib1Tab1(
         t_lib_name=z + ".db",
@@ -31,7 +31,7 @@ database_structure.update({
     ) for z in test_return_lbl_list})
 
 # test return neutral structure
-test_return_neutral_lbl_list = ["test_return_{:03d}.WS".format(w) for w in test_window_list]
+test_return_neutral_lbl_list = ["test_return_{:03d}.WS".format(w) for w in test_windows]
 database_structure.update({
     z: CLib1Tab1(
         t_lib_name=z + ".db",
@@ -51,10 +51,9 @@ database_structure.update({
             "primary_keys": {"trade_date": "TEXT", "instrument": "TEXT"},
             "value_columns": {"value": "REAL"},
         })
-    ) for z in factors_list})
+    ) for z in factors})
 
 # factors neutral structure
-factors_neutral_list = ["{}.WS".format(f) for f in factors_list]
 database_structure.update({
     z: CLib1Tab1(
         t_lib_name=z + ".db",
@@ -63,7 +62,7 @@ database_structure.update({
             "primary_keys": {"trade_date": "TEXT", "instrument": "TEXT"},
             "value_columns": {"value": "REAL"},
         })
-    ) for z in factors_neutral_list})
+    ) for z in factors_neutral})
 
 # norm factors pool
 norm_factors_pool_list = ["{}.WS.NORM".format(p) for p in factors_pool_options]
@@ -91,7 +90,7 @@ database_structure.update({
 
 # factors return lib
 factors_return_list = ["factors_return.{}.WS.TW{:03d}.T{}".format(p, tw, l)
-                       for p, tw, l in ittl.product(factors_pool_options.keys(), test_window_list, factors_return_lag_list)]
+                       for p, tw, l in ittl.product(factors_pool_options.keys(), test_windows, factors_return_lags)]
 database_structure.update({
     z: CLib1Tab1(
         t_lib_name=z + ".db",
@@ -104,7 +103,7 @@ database_structure.update({
 
 # factors delinear test ic lib
 factors_delinear_test_ic_list = ["factors_delinear_test_ic.{}.WS.TW{:03d}.T{}".format(p, tw, l)
-                                 for p, tw, l in ittl.product(factors_pool_options.keys(), test_window_list, factors_return_lag_list)]
+                                 for p, tw, l in ittl.product(factors_pool_options.keys(), test_windows, factors_return_lags)]
 database_structure.update({
     z: CLib1Tab1(
         t_lib_name=z + ".db",
@@ -117,7 +116,7 @@ database_structure.update({
 
 # instrument residual lib
 instrument_residual_list = ["instruments_residual.{}.WS.TW{:03d}.T{}".format(p, tw, l)
-                            for p, tw, l in ittl.product(factors_pool_options.keys(), test_window_list, factors_return_lag_list)]
+                            for p, tw, l in ittl.product(factors_pool_options.keys(), test_windows, factors_return_lags)]
 database_structure.update({
     z: CLib1Tab1(
         t_lib_name=z + ".db",
@@ -130,16 +129,11 @@ database_structure.update({
 
 # factors portfolio lib
 factors_portfolio_list = ["factors_portfolio.{}.WS.TW{:03d}.T{}".format(p, tw, l)
-                          for p, tw, l in ittl.product(factors_pool_options.keys(), test_window_list, factors_return_lag_list)]
+                          for p, tw, l in ittl.product(factors_pool_options.keys(), test_windows, factors_return_lags)]
 for z in factors_portfolio_list:
-    # selected sectors list
-    mother_universe = instruments_universe_options[universe_id]
-    sector_set = {sector_classification[u] for u in mother_universe}  # this set may be a subset of sectors_list and in random order
-    selected_sectors_list = [z for z in sectors_list if z in sector_set]  # sort sector set by sectors list order
-
-    # selected factors pool
-    selected_factors_pool = factors_pool_options[z.split(".")[1]]
-
+    sector_set = {sector_classification[u] for u in concerned_instruments_universe}  # this set may be a subset of sectors_list and in random order
+    selected_sectors_list = [z for z in sectors if z in sector_set]  # sort sector set by sectors list order
+    selected_factors_pool = factors_pool_options[z.split(".")[1]]  # selected factors pool
     database_structure.update({
         z: CLib1Tab1(
             t_lib_name=z + ".db",
@@ -152,7 +146,7 @@ for z in factors_portfolio_list:
 
 # IV lib
 iv_list = ["IV{}WSTW{:03d}T{}".format(p, tw, l)
-           for p, tw, l in ittl.product(factors_pool_options.keys(), test_window_list, factors_return_lag_list)]
+           for p, tw, l in ittl.product(factors_pool_options.keys(), test_windows, factors_return_lags)]
 database_structure.update({
     z: CLib1Tab1(
         t_lib_name=z + ".db",

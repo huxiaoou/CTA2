@@ -3,7 +3,7 @@ import datetime as dt
 import pandas as pd
 from typing import List, Dict
 from skyrim.falkreath import CManagerLibWriterByDate, CLib1Tab1
-from custom.XFuns import cal_roll_return, find_price
+from factors.XFuns import cal_roll_return, find_price
 
 
 def factors_algorithm_TS(

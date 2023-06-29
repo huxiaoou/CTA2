@@ -8,7 +8,7 @@ from setup_factor_and_portfolio import simulations_opt_dir
 from setup_factor_and_portfolio import evaluations_opt_dir
 from setup_factor_and_portfolio import by_year_dir
 from config_factor import universe_id, instruments_universe_options
-from config_portfolio import test_window_list
+from config_portfolio import test_windows
 from config_portfolio import available_factors_list, selected_sectors_list, selected_factors_list
 from config_portfolio import allocation_options, synth_options
 from config_portfolio import fast_n_slow_n_comb, timing_factors_list
@@ -34,12 +34,12 @@ if __name__ == "__main__":
 
     # set factors
     vanilla_factors = ["{}VM{:03d}".format(factor_lbl, mov_ave_len)
-                       for factor_lbl, mov_ave_len in ittl.product(available_factors_list, test_window_list)]
+                       for factor_lbl, mov_ave_len in ittl.product(available_factors_list, test_windows)]
     ma_factors = ["{}F{:03d}S{:03d}M{:03d}".format(factor_lbl, fn, sn, mov_ave_len)
                   for factor_lbl, mov_ave_len, (fn, sn) in
-                  ittl.product(timing_factors_list, test_window_list, fast_n_slow_n_comb)]
+                  ittl.product(timing_factors_list, test_windows, fast_n_slow_n_comb)]
     alloc_id_opt_list = ["{}M{:03d}".format(aid, tw) for aid, tw in ittl.product(
-        list(synth_options) + list(allocation_options), test_window_list)]
+        list(synth_options) + list(allocation_options), test_windows)]
 
     if switch["vanilla"]:
         fun_for_simulation_factors(

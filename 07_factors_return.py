@@ -4,10 +4,10 @@ from setup_factor_and_portfolio import factors_return_dir, factors_portfolio_dir
 from setup_factor_and_portfolio import calendar_path
 from config_factor import neutral_method
 from config_factor import sector_classification
-from config_factor import test_lag, universe_id, sectors_list
+from config_factor import test_lag, universe_id, sectors
 from config_factor import instruments_universe_options, factors_pool_options
 from struct_lib import database_structure
-from custom.XFuns import cal_risk_factor_return_colinear, check_for_factor_return_colinear
+from factors.XFuns import cal_risk_factor_return_colinear, check_for_factor_return_colinear
 from skyrim.whiterun import CCalendar
 from skyrim.winterhold import plot_bar
 from skyrim.falkreath import CManagerLibReader, CManagerLibWriterByDate
@@ -66,7 +66,7 @@ mother_universe_df = pd.DataFrame({"instrument": mother_universe})
 
 # --- load sector df
 sector_df = pd.DataFrame.from_dict({z: {sector_classification[z]: 1} for z in mother_universe}, orient="index").fillna(0)
-selected_sectors_list = [z for z in sectors_list if z in sector_df.columns.to_list()]  # sector_df.columns may be a subset of sector_list and in random order
+selected_sectors_list = [z for z in sectors if z in sector_df.columns.to_list()]  # sector_df.columns may be a subset of sector_list and in random order
 sector_df["MARKET"] = 1.00
 
 # --- regression labels

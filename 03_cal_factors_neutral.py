@@ -2,9 +2,9 @@ from setup_factor_and_portfolio import dt, np, pd
 from setup_factor_and_portfolio import calendar_path, available_universe_dir, factors_exposure_dir, factors_exposure_neutral_dir
 from config_factor import instruments_universe_options, universe_id
 from config_factor import sector_classification
-from config_factor import factors_list, neutral_method
+from config_factor import factors, neutral_method
 from struct_lib import database_structure
-from custom.XFuns import neutralize_by_sector, transform_dist
+from factors.XFuns import neutralize_by_sector, transform_dist
 from skyrim.whiterun import CCalendar
 from skyrim.falkreath import CManagerLibReader, CManagerLibWriterByDate
 import argparse
@@ -37,7 +37,7 @@ mother_universe_df = pd.DataFrame({"instrument": mother_universe})
 # --- sector df
 sector_df = pd.DataFrame.from_dict({z: {sector_classification[z]: 1} for z in mother_universe}, orient="index").fillna(0)
 
-for factor_lbl in factors_list:
+for factor_lbl in factors:
     # --- factor library
     factor_lib_structure = database_structure[factor_lbl]
     factor_lib = CManagerLibReader(t_db_name=factor_lib_structure.m_lib_name, t_db_save_dir=factors_exposure_dir)

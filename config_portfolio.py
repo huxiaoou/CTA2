@@ -1,9 +1,9 @@
-from config_factor import test_window_list
-from config_factor import sectors_list, sector_classification
+from config_factor import test_windows
+from config_factor import sectors, sector_classification
 from config_factor import instruments_universe_options, universe_id
-from config_factor import factors_pool_options, factors_list
+from config_factor import factors_pool_options, factors
 
-hold_period_n_list = test_window_list
+hold_period_n_list = test_windows
 factors_return_lag = 0  # the core difference between "Project_2022_11_Commodity_Factors_Return_Analysis_V4B"
 
 # secondary parameters
@@ -16,7 +16,7 @@ minimum_abs_weight = 0.001
 
 # Local
 pid = "P3"
-selected_sectors_list = [z for z in sectors_list if z in set(sector_classification[i] for i in instruments_universe_options[universe_id])]
+selected_sectors_list = [z for z in sectors if z in set(sector_classification[i] for i in instruments_universe_options[universe_id])]
 selected_factors_list = factors_pool_options[pid]
 available_factors_list = ["MARKET"] + selected_sectors_list + selected_factors_list
 timing_factors_list = ["MARKET"] + selected_sectors_list
@@ -209,8 +209,8 @@ synth_options = {
 if __name__ == "__main__":
     import pandas as pd
 
-    print("Total number of factors = {}".format(len(factors_list)))  # 103
-    print("\n".join(factors_list))
+    print("Total number of factors = {}".format(len(factors)))  # 103
+    print("\n".join(factors))
     print(selected_sectors_list)
     print(selected_factors_list)
     print(available_factors_list)

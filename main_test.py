@@ -4,11 +4,11 @@ from setup_factor_and_portfolio import sys, ittl, calendar_path
 from setup_factor_and_portfolio import available_universe_dir, factors_exposure_dir, factors_exposure_neutral_dir, factors_exposure_delinear_dir
 from setup_factor_and_portfolio import test_return_dir, test_return_neutral_dir
 from setup_factor_and_portfolio import test_ic_dir, factors_delinear_test_ic_dir, factors_exposure_corr_dir
-from config_factor import factors_list, test_window_list, factors_return_lag_list
+from config_factor import factors, test_windows, factors_return_lags
 from config_factor import factors_bgn_date, test_lag, neutral_method
 from config_factor import factors_pool_bgn_date, factors_pool_options
 from struct_lib import database_structure
-from custom.XFuns import fun_for_factors_return_agg
+from factors.XFuns import fun_for_factors_return_agg
 from ic_tests.ic_test_single_factor import ic_test_single_factor
 from ic_tests.ic_test_single_factor_neutral import ic_test_single_factor_neutral
 from ic_tests.ic_test_plot_single_factor import ic_test_plot_single_factor
@@ -130,7 +130,7 @@ if __name__ == "__main__":
     trade_calendar = CCalendar(t_path=calendar_path)
 
     ic_tests(
-        t_gn=GN, t_factors_list=factors_list, t_test_window_list=test_window_list,
+        t_gn=GN, t_factors_list=factors, t_test_window_list=test_windows,
         t_factors_bgn_date=factors_bgn_date, t_factors_stp_date=factors_stp_date, t_test_lag=test_lag,
         t_test_ic_dir=test_ic_dir, t_available_universe_dir=available_universe_dir,
         t_factors_exposure_dir=factors_exposure_dir, t_test_return_dir=test_return_dir,
@@ -141,7 +141,7 @@ if __name__ == "__main__":
     print(sep)
 
     ic_tests_neutral(
-        t_gn=GN, t_factors_list=factors_list, t_test_window_list=test_window_list, t_neutral_method=neutral_method,
+        t_gn=GN, t_factors_list=factors, t_test_window_list=test_windows, t_neutral_method=neutral_method,
         t_factors_bgn_date=factors_bgn_date, t_factors_stp_date=factors_stp_date, t_test_lag=test_lag,
         t_test_ic_dir=test_ic_dir, t_available_universe_dir=available_universe_dir,
         t_factors_exposure_neutral_dir=factors_exposure_neutral_dir, t_test_return_neutral_dir=test_return_neutral_dir,
@@ -151,25 +151,25 @@ if __name__ == "__main__":
     )
     print(sep)
 
-    for factor_lbl in factors_list:
+    for factor_lbl in factors:
         ic_test_plot_single_factor(
-            factor_lbl=factor_lbl, test_window_list=test_window_list,
+            factor_lbl=factor_lbl, test_window_list=test_windows,
             test_ic_dir=test_ic_dir
         )
     print(sep)
 
-    for factor_lbl in factors_list:
+    for factor_lbl in factors:
         ic_test_plot_single_factor_neutral(
-            factor_lbl=factor_lbl, neutral_method=neutral_method, test_window_list=test_window_list,
+            factor_lbl=factor_lbl, neutral_method=neutral_method, test_window_list=test_windows,
             test_ic_dir=test_ic_dir
         )
     print(sep)
 
-    ic_test_summary(factors_list=factors_list, exception_list=[],
+    ic_test_summary(factors_list=factors, exception_list=[],
                     neutral_method=neutral_method, test_ic_dir=test_ic_dir)
     print(sep)
 
-    for test_window, factors_return_lag in ittl.product(test_window_list, factors_return_lag_list):
+    for test_window, factors_return_lag in ittl.product(test_windows, factors_return_lags):
         ic_test_delinear_factors(
             pid="P3", neutral_method=neutral_method, test_window=test_window, factors_return_lag=factors_return_lag,
             trade_calendar=trade_calendar,
@@ -197,8 +197,8 @@ if __name__ == "__main__":
 
     fun_for_factors_return_agg(
         t_pid_list=list(factors_pool_options.keys()),
-        t_test_window_list=test_window_list,
-        t_factors_return_lag_list=factors_return_lag_list,
+        t_test_window_list=test_windows,
+        t_factors_return_lag_list=factors_return_lags,
     )
     print(sep)
 

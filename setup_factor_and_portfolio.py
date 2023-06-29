@@ -69,7 +69,7 @@ instruments_residual_agg_dir = os.path.join(factors_library_dir, "instruments_re
 factors_delinear_test_ic_dir = os.path.join(factors_library_dir, "factors_delinear_test_ic")
 
 # portfolio
-portfolio_dir = os.path.join(futures_dir, global_config["futures"]["signals_dir"])
+portfolio_dir = os.path.join(futures_dir, global_config["futures"]["cta_dir"])
 factors_return_reformat_dir = os.path.join(portfolio_dir, "factors_return_reformat")
 signals_dir = os.path.join(portfolio_dir, "signals")
 signals_allocation_dir = os.path.join(portfolio_dir, "signals_allocation")

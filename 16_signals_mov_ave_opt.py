@@ -5,7 +5,7 @@ from setup_factor_and_portfolio import calendar_path
 from setup_factor_and_portfolio import signals_allocation_dir, signals_opt_dir
 from skyrim.whiterun import CCalendar
 from skyrim.falkreath import CManagerLibReader, CManagerLibWriterByDate
-from config_factor import test_window_list
+from config_factor import test_windows
 from config_portfolio import minimum_abs_weight
 from config_portfolio import synth_options, allocation_options
 from struct_lib_portfolio import database_structure
@@ -21,13 +21,13 @@ run_mode = args.mode.upper()
 bgn_date, stp_date = args.bgn, args.stp
 if stp_date == "":
     stp_date = (dt.datetime.strptime(bgn_date, "%Y%m%d") + dt.timedelta(days=1)).strftime("%Y%m%d")
-trailing_window = max(test_window_list) * 3
+trailing_window = max(test_windows) * 3
 ahead_bgn_date = (dt.datetime.strptime(bgn_date, "%Y%m%d") - dt.timedelta(days=trailing_window)).strftime("%Y%m%d")
 
 # --- init calendar
 cne_calendar = CCalendar(t_path=calendar_path)
 
-for allocation_id, mov_ave_len in ittl.product(list(synth_options) + list(allocation_options), test_window_list):
+for allocation_id, mov_ave_len in ittl.product(list(synth_options) + list(allocation_options), test_windows):
     allocation_opt_id = "{}M{:03d}".format(allocation_id, mov_ave_len)
 
     # --- init allocation lib

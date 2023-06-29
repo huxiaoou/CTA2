@@ -3,11 +3,11 @@ import datetime as dt
 import pandas as pd
 from typing import List, Dict
 from skyrim.falkreath import CManagerLibWriterByDate, CLib1Tab1
-from custom.XFuns import cal_period_return
+from factors.XFuns import cal_rolling_corr
 
 
-def factors_algorithm_MTM(
-        mtm_window: int,
+def factors_algorithm_CVP(
+        cvp_window: int,
         concerned_instruments_universe: List[str],
         database_structure: Dict[str, CLib1Tab1],
         factors_exposure_dir: str,
@@ -15,16 +15,19 @@ def factors_algorithm_MTM(
         md_stp_date: str,
         major_return_dir: str,
         price_type: str = "close",
-        return_scale: int = 100,
 ):
-    factor_lbl = "MTM{:03d}".format(mtm_window)
+    factor_lbl = "CVP{:03d}".format(cvp_window)
 
+    # --- calculate factors by instrument
     all_factor_data = {}
     for instrument in concerned_instruments_universe:
         major_return_file = "major_return.{}.{}.csv.gz".format(instrument, price_type)
         major_return_path = os.path.join(major_return_dir, major_return_file)
         major_return_df = pd.read_csv(major_return_path, dtype={"trade_date": str}).set_index("trade_date")
-        major_return_df[factor_lbl] = major_return_df["major_return"].rolling(window=mtm_window).apply(cal_period_return, args=(return_scale,), raw=True)
+
+        x = "instru_idx"
+        y = "volume"
+        cal_rolling_corr(t_major_return_df=major_return_df, t_x=x, t_y=y, t_rolling_window=cvp_window, t_corr_lbl=factor_lbl)
         all_factor_data[instrument] = major_return_df[factor_lbl]
 
     # --- reorganize

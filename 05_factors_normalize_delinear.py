@@ -9,7 +9,7 @@ from config_factor import instruments_universe_options, factors_pool_options
 from struct_lib import database_structure
 from skyrim.whiterun import CCalendar
 from skyrim.falkreath import CManagerLibReader, CManagerLibWriterByDate, Dict
-from custom.XFuns import drop_df_rows_by_nan_prop, transform_dist, adjust_weight, sector_neutralize_factors_pool, normalize, delinear
+from factors.XFuns import drop_df_rows_by_nan_prop, transform_dist, adjust_weight, sector_neutralize_factors_pool, normalize, delinear
 import argparse
 
 args_parser = argparse.ArgumentParser(description="To update available universe")

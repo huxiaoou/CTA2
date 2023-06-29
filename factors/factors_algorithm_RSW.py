@@ -3,7 +3,7 @@ import datetime as dt
 import pandas as pd
 from typing import List, Dict
 from skyrim.falkreath import CManagerLibWriterByDate, CLib1Tab1
-from custom.XFuns import cal_wgt_ary, cal_registered_stock_change_ratio
+from factors.XFuns import cal_wgt_ary, cal_registered_stock_change_ratio
 
 
 def factors_algorithm_RSW(

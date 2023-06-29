@@ -60,11 +60,13 @@ concerned_instruments_universe = [
 ciu_size = len(concerned_instruments_universe)  # should be 47
 
 # available universe
-available_universe_rolling_window = 20
-available_universe_amt_threshold = 5
+available_universe_options = {
+    "rolling_window": 20,
+    "amount_threshold": 5,
+}
 
 # sector
-sectors_list = ["AUAG", "METAL", "BLACK", "OIL", "CHEM", "MISC"]  # 6
+sectors = ["AUAG", "METAL", "BLACK", "OIL", "CHEM", "MISC"]  # 6
 sector_classification = {
     "AU.SHF": "AUAG",
     "AG.SHF": "AUAG",
@@ -116,26 +118,21 @@ sector_classification = {
 }
 
 # --- factor settings ---
-factors_args_dict = {
+factors_args = {
     "BASIS": [147], "CSP": [189], "CTP": [63], "CVP": [63],
     "SKEW": [10], "MTM": [231], "TS": [126], "RSW252HL": [63],
     "SIZE": [252], "TO": [252], "BETA": [21],
 }
-factors_list = []
-for factor_class, arg_lst in factors_args_dict.items():
-    factors_list += ["{}{:03d}".format(factor_class, z) for z in arg_lst]
-factors_list_size = len(factors_list)
+factors = []
+for factor_class, arg_lst in factors_args.items():
+    factors += ["{}{:03d}".format(factor_class, z) for z in arg_lst]
+factors_list_size = len(factors)
+factors_neutral = ["{}.WS".format(_) for _ in factors]
 
 # --- test return ---
-test_window_list = [3, 5, 10, 15, 20]  # 5
+test_windows = [3, 5, 10, 15, 20]  # 5
 test_lag = 1
-factors_return_lag_list = (0, 1)
-
-# --- instrument universe ---
-instruments_universe_options = {
-    "U47": concerned_instruments_universe,  # size = 47
-}
-universe_id = "U47"
+factors_return_lags = (0, 1)
 
 # --- factors pool ---
 factors_pool_options = {
@@ -155,5 +152,5 @@ days_per_year = 252
 price_type = "close"
 
 if __name__ == "__main__":
-    print("\n".join(factors_list))
-    print("Total number of factors = {}".format(len(factors_list)))  # 103
+    print("\n".join(factors))
+    print("Total number of factors = {}".format(len(factors)))  # 103

@@ -1,9 +1,9 @@
 from config_portfolio import available_factors_list, timing_factors_list, fast_n_slow_n_comb, allocation_options, synth_options
-from config_portfolio import test_window_list
+from config_portfolio import test_windows
 from struct_lib import database_structure, CLib1Tab1, CTable, ittl
 
 # update @ 2022-11-16
-pure_factors_list = ["pure_factors_VANILLA.{}.TW{:03d}".format(f, tw) for f, tw in ittl.product(available_factors_list, test_window_list)]
+pure_factors_list = ["pure_factors_VANILLA.{}.TW{:03d}".format(f, tw) for f, tw in ittl.product(available_factors_list, test_windows)]
 for z in pure_factors_list:
     database_structure.update({
         z: CLib1Tab1(
@@ -17,7 +17,7 @@ for z in pure_factors_list:
     })
 
 pure_factors_list = ["pure_factors_MA.{}.TW{:03d}.FAST{:03d}.SLOW{:03d}".format(f, tw, fn, sn)
-                     for f, tw, (fn, sn) in ittl.product(available_factors_list, test_window_list, fast_n_slow_n_comb)]
+                     for f, tw, (fn, sn) in ittl.product(available_factors_list, test_windows, fast_n_slow_n_comb)]
 for z in pure_factors_list:
     database_structure.update({
         z: CLib1Tab1(
@@ -55,7 +55,7 @@ for z in synth_options:
     })
 
 # --- for optimization vanilla factor
-for factor_lbl, mov_ave_len in ittl.product(available_factors_list, test_window_list):
+for factor_lbl, mov_ave_len in ittl.product(available_factors_list, test_windows):
     z = "{}VM{:03d}".format(factor_lbl, mov_ave_len)
     database_structure.update({
         z: CLib1Tab1(
@@ -69,7 +69,7 @@ for factor_lbl, mov_ave_len in ittl.product(available_factors_list, test_window_
     })
 
 # --- for optimization MA factor
-for factor_lbl, mov_ave_len, (fn, sn) in ittl.product(timing_factors_list, test_window_list, fast_n_slow_n_comb):
+for factor_lbl, mov_ave_len, (fn, sn) in ittl.product(timing_factors_list, test_windows, fast_n_slow_n_comb):
     z = "{}F{:03d}S{:03d}M{:03d}".format(factor_lbl, fn, sn, mov_ave_len)
     database_structure.update({
         z: CLib1Tab1(
@@ -83,7 +83,7 @@ for factor_lbl, mov_ave_len, (fn, sn) in ittl.product(timing_factors_list, test_
     })
 
 # --- for optimization allocation
-for aid, mov_ave_len in ittl.product(list(synth_options) + list(allocation_options), test_window_list):
+for aid, mov_ave_len in ittl.product(list(synth_options) + list(allocation_options), test_windows):
     z = "{}M{:03d}".format(aid, mov_ave_len)
     database_structure.update({
         z: CLib1Tab1(
