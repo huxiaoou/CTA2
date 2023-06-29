@@ -53,8 +53,8 @@ if switch["BASIS"]:
             concerned_instruments_universe=concerned_instruments_universe,
             database_structure=database_structure,
             factors_exposure_dir=factors_exposure_dir,
-            md_bgn_date=md_bgn_date,
-            md_stp_date=md_stp_date,
+            bgn_date=md_bgn_date,
+            stp_date=md_stp_date,
             fundamental_dir=fundamental_by_instru_dir,
             major_minor_dir=major_minor_dir
         )
