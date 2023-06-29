@@ -6,6 +6,7 @@ from returns.test_return import cal_test_return_mp
 from returns.test_return_neutral import cal_test_return_neutral_mp
 from factors.factors_algorithm_BASIS import cal_factors_exposure_basis_mp
 from factors.factors_algorithm_BETA import cal_factors_exposure_beta_mp
+from factors.factors_algorithm_CV import cal_factors_exposure_cv_mp
 
 from setup_factor_and_portfolio import major_return_dir, major_minor_dir, fundamental_by_instru_dir, \
     instruments_return_dir, available_universe_dir, \
@@ -125,5 +126,14 @@ if __name__ == "__main__":
                                          calendar_path=calendar_path,
                                          database_structure=database_structure,
                                          )
+        if factor == "CV":
+            cal_factors_exposure_cv_mp(proc_num=proc_num, cv_windows=factors_args["CV"],
+                                       run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+                                       concerned_instruments_universe=concerned_instruments_universe,
+                                       factors_exposure_dir=factors_exposure_dir,
+                                       major_return_dir=major_return_dir,
+                                       calendar_path=calendar_path,
+                                       database_structure=database_structure,
+                                       )
         else:
             print(f"... switch = {switch} is not a legal option, please check again.")
