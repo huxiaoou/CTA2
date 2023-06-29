@@ -7,9 +7,6 @@ import subprocess
 
 # -------------------------------------------
 # --- Part I: factor exposure calculation ---
-def cal_period_return(t_z: pd.Series, t_ret_scale: int) -> float:
-    return (np.prod(t_z / t_ret_scale + 1) - 1) * t_ret_scale
-
 
 def find_price(t_x: pd.Series, t_md_df: pd.DataFrame):
     _trade_date = t_x.name

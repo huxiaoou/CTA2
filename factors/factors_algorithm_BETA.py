@@ -80,3 +80,4 @@ def cal_factors_exposure_beta_mp(
     pool.join()
     t1 = dt.datetime.now()
     print("... total time consuming: {:.2f} seconds".format((t1 - t0).total_seconds()))
+    return 0
