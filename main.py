@@ -9,8 +9,9 @@ from factors.factors_algorithm_BETA import cal_factors_exposure_beta_mp
 from factors.factors_algorithm_CV import cal_factors_exposure_cv_mp
 from factors.factors_algorithm_MTM import cal_factors_exposure_mtm_mp
 from factors.factors_algorithm_RSW import cal_factors_exposure_rsw_mp
+from factors.factors_algorithm_TS import cal_factors_exposure_ts_mp
 
-from setup_factor_and_portfolio import major_return_dir, major_minor_dir, fundamental_by_instru_dir, \
+from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_instru_dir, fundamental_by_instru_dir, \
     instruments_return_dir, available_universe_dir, \
     test_return_dir, test_return_neutral_dir, \
     factors_exposure_dir, factors_exposure_neutral_dir, \
@@ -156,5 +157,15 @@ if __name__ == "__main__":
                                         calendar_path=calendar_path,
                                         database_structure=database_structure,
                                         )
+        if factor == "TS":
+            cal_factors_exposure_ts_mp(proc_num=proc_num, ts_windows=factors_args["TS"],
+                                       run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+                                       concerned_instruments_universe=concerned_instruments_universe,
+                                       factors_exposure_dir=factors_exposure_dir,
+                                       major_minor_dir=major_minor_dir,
+                                       md_dir=md_by_instru_dir,
+                                       calendar_path=calendar_path,
+                                       database_structure=database_structure,
+                                       )
     else:
         print(f"... switch = {switch} is not a legal option, please check again.")

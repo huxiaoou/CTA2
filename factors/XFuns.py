@@ -8,15 +8,7 @@ import subprocess
 # -------------------------------------------
 # --- Part I: factor exposure calculation ---
 
-def find_price(t_x: pd.Series, t_md_df: pd.DataFrame):
-    _trade_date = t_x.name
-    return t_md_df.at[_trade_date, t_x["n_contract"]], t_md_df.at[_trade_date, t_x["d_contract"]]
 
-
-def cal_roll_return(t_x: pd.Series, t_n_prc_lbl: str, t_d_prc_lbl: str, t_ret_scale: int):
-    _dlt_month = int(t_x["d_contract"].split(".")[0][-2:]) - int(t_x["n_contract"].split(".")[0][-2:])
-    _dlt_month = _dlt_month + (12 if _dlt_month <= 0 else 0)
-    return (t_x[t_n_prc_lbl] / t_x[t_d_prc_lbl] - 1) / _dlt_month * 12 * t_ret_scale
 
 
 def cal_registered_stock_change_ratio(t_x: pd.Series, t_this_lbl: str, t_prev_lbl: str, t_lower_lim: float, t_ret_scale: int):
