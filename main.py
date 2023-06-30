@@ -6,6 +6,8 @@ from returns.test_return import cal_test_return_mp
 from returns.test_return_neutral import cal_test_return_neutral_mp
 from factors.factors_algorithm_BASIS import cal_factors_exposure_basis_mp
 from factors.factors_algorithm_BETA import cal_factors_exposure_beta_mp
+from factors.factors_algorithm_CSP import cal_factors_exposure_csp_mp
+from factors.factors_algorithm_CSR import cal_factors_exposure_csr_mp
 from factors.factors_algorithm_CV import cal_factors_exposure_cv_mp
 from factors.factors_algorithm_MTM import cal_factors_exposure_mtm_mp
 from factors.factors_algorithm_RSW import cal_factors_exposure_rsw_mp
@@ -129,6 +131,24 @@ if __name__ == "__main__":
                                          calendar_path=calendar_path,
                                          database_structure=database_structure,
                                          )
+        if factor == "CSP":
+            cal_factors_exposure_csp_mp(proc_num=proc_num, csp_windows=factors_args["CSP"],
+                                        run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+                                        concerned_instruments_universe=concerned_instruments_universe,
+                                        factors_exposure_dir=factors_exposure_dir,
+                                        major_return_dir=major_return_dir,
+                                        calendar_path=calendar_path,
+                                        database_structure=database_structure,
+                                        )
+        if factor == "CSR":
+            cal_factors_exposure_csr_mp(proc_num=proc_num, csr_windows=factors_args["CSR"],
+                                        run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+                                        concerned_instruments_universe=concerned_instruments_universe,
+                                        factors_exposure_dir=factors_exposure_dir,
+                                        major_return_dir=major_return_dir,
+                                        calendar_path=calendar_path,
+                                        database_structure=database_structure,
+                                        )
         if factor == "CV":
             cal_factors_exposure_cv_mp(proc_num=proc_num, cv_windows=factors_args["CV"],
                                        run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,

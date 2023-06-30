@@ -1,10 +1,18 @@
 import os
 import datetime as dt
 import multiprocessing as mp
+import numpy as np
 import pandas as pd
 from skyrim.falkreath import CManagerLibWriter, CLib1Tab1
 from skyrim.whiterun import CCalendar
-from factors.XFuns import cal_wgt_ary, cal_registered_stock_change_ratio
+from factors.XFuns import cal_wgt_ary
+
+
+def cal_registered_stock_change_ratio(t_x: pd.Series, t_this_lbl: str, t_prev_lbl: str, t_lower_lim: float, t_ret_scale: int):
+    if t_x[t_prev_lbl] >= t_lower_lim:
+        return -(t_x[t_this_lbl] / t_x[t_prev_lbl] - 1) * t_ret_scale
+    else:
+        return np.nan
 
 
 def factors_algorithm_RSW(

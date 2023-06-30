@@ -9,15 +9,6 @@ import subprocess
 # --- Part I: factor exposure calculation ---
 
 
-
-
-def cal_registered_stock_change_ratio(t_x: pd.Series, t_this_lbl: str, t_prev_lbl: str, t_lower_lim: float, t_ret_scale: int):
-    if t_x[t_prev_lbl] >= t_lower_lim:
-        return -(t_x[t_this_lbl] / t_x[t_prev_lbl] - 1) * t_ret_scale
-    else:
-        return np.nan
-
-
 def cal_rolling_corr(t_major_return_df: pd.DataFrame, t_x: str, t_y: str, t_rolling_window: int, t_corr_lbl: str):
     t_major_return_df["xy"] = (t_major_return_df[t_x] * t_major_return_df[t_y]).rolling(window=t_rolling_window).mean()
     t_major_return_df["xx"] = (t_major_return_df[t_x] * t_major_return_df[t_x]).rolling(window=t_rolling_window).mean()
@@ -47,10 +38,8 @@ def cal_wgt_ary(t_half_life: int, t_size: int, t_ascending: bool):
     :return:
     """
     _rou = np.power(0.5, 1 / t_half_life)
-    if t_ascending:
-        _w = np.power(_rou, np.arange(t_size, 0, -1))
-    else:
-        _w = np.power(_rou, np.arange(0, t_size, 1))
+    _ticks = np.arange(t_size, 0, -1) if t_ascending else np.arange(0, t_size, -1)
+    _w = np.power(_rou, _ticks)
     _w = _w / _w.sum()
     return _w
 
