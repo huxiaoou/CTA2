@@ -122,9 +122,6 @@ factors_args = {
     "BASIS": [147], "CSP": [189], "CTP": [63], "CVP": [63],
     "SKEW": [10], "MTM": [231], "TS": [126], "RSW252HL": [63],
     "SIZE": [252], "TO": [252], "BETA": [21],
-    "CV": [126],
-    "CSR": [189], "CTR": [63], "CVR": [63],
-    "HP": [126], "SGM": [126], "VOL": [126],
 }
 factors = []
 for factor_class, arg_lst in factors_args.items():

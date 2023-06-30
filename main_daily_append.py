@@ -25,7 +25,7 @@ print(sep)
 sp.run(["python", "03_cal_factors.py", next_date])
 print(sep)
 
-sp.run(["python", "03_cal_factors_neutral.py", "--mode", "a", "--bgn", trade_date])
+sp.run(["python", "factors_neutral.py", "--mode", "a", "--bgn", trade_date])
 print(sep)
 
 # The following parts may depend on IC-test results:

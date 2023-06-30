@@ -38,7 +38,7 @@ def cal_wgt_ary(t_half_life: int, t_size: int, t_ascending: bool):
     :return:
     """
     _rou = np.power(0.5, 1 / t_half_life)
-    _ticks = np.arange(t_size, 0, -1) if t_ascending else np.arange(0, t_size, -1)
+    _ticks = np.arange(t_size, 0, -1) if t_ascending else np.arange(0, t_size, 1)
     _w = np.power(_rou, _ticks)
     _w = _w / _w.sum()
     return _w

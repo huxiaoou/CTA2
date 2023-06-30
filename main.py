@@ -22,6 +22,7 @@ from factors.factors_algorithm_SKEW import cal_factors_exposure_skew_mp
 from factors.factors_algorithm_TO import cal_factors_exposure_to_mp
 from factors.factors_algorithm_TS import cal_factors_exposure_ts_mp
 from factors.factors_algorithm_VOL import cal_factors_exposure_vol_mp
+from factors.factors_neutral import cal_factors_neutral_mp
 
 from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_instru_dir, fundamental_by_instru_dir, \
     instruments_return_dir, available_universe_dir, \
@@ -30,7 +31,7 @@ from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_
     factors_return_dir, \
     calendar_path
 from config_factor import concerned_instruments_universe, sector_classification, \
-    available_universe_options, test_windows, neutral_method, factors_args
+    available_universe_options, test_windows, factors_args, factors, neutral_method
 from struct_lib import database_structure
 
 if __name__ == "__main__":
@@ -52,6 +53,7 @@ if __name__ == "__main__":
             "returns/test_return_neutral": "20120301",
             
             "factors/exposure": "20130101",
+            "factors/exposure_neutral": "20130101",
         }
         """)
     args_parser.add_argument("-s", "--stp", type=str, help="""
@@ -287,5 +289,17 @@ if __name__ == "__main__":
                                         calendar_path=calendar_path,
                                         database_structure=database_structure,
                                         )
+    elif switch in ["FEN"]:
+        cal_factors_neutral_mp(
+            proc_num=proc_num, factors=factors,
+            neutral_method=neutral_method,
+            run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+            concerned_instruments_universe=concerned_instruments_universe,
+            sector_classification=sector_classification,
+            available_universe_dir=available_universe_dir,
+            factors_exposure_dir=factors_exposure_dir,
+            factors_exposure_neutral_dir=factors_exposure_neutral_dir,
+            database_structure=database_structure,
+        )
     else:
         print(f"... switch = {switch} is not a legal option, please check again.")

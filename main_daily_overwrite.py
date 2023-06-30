@@ -28,7 +28,7 @@ print(sep)
 sp.run(["python", "03_cal_factors.py", md_stp_date])
 print(sep)
 
-sp.run(["python", "03_cal_factors_neutral.py", "--mode", "o", "--bgn", md_bgn_date, "--stp", md_stp_date])
+sp.run(["python", "factors_neutral.py", "--mode", "o", "--bgn", md_bgn_date, "--stp", md_stp_date])
 print(sep)
 
 # The following parts may depend on IC-test results:
