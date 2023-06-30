@@ -48,6 +48,7 @@ def factors_algorithm_TS(
     iter_dates = calendar.get_iter_list(bgn_date, stp_date, True)
     base_date = calendar.get_next_date(iter_dates[0], -ts_window + 1)
 
+    # --- calculate factors by instrument
     all_factor_data = {}
     for instrument in concerned_instruments_universe:
         major_minor_file = "major_minor.{}.csv.gz".format(instrument)
@@ -63,6 +64,7 @@ def factors_algorithm_TS(
         major_minor_df["n_" + price_type], major_minor_df["d_" + price_type] = zip(*major_minor_df.apply(find_price, args=(md_df,), axis=1))
         major_minor_df["roll_return"] = major_minor_df.apply(cal_roll_return, args=("n_" + price_type, "d_" + price_type, return_scale), axis=1)
         major_minor_df["roll_return"] = major_minor_df["roll_return"].fillna(method="ffill").rolling(window=ts_window).mean()
+        major_minor_df = major_minor_df.loc[major_minor_df.index >= bgn_date]
         all_factor_data[instrument] = major_minor_df["roll_return"]
 
     # --- reorganize

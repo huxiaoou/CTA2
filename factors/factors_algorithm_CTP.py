@@ -34,6 +34,7 @@ def factors_algorithm_CTP(
         major_return_df = pd.read_csv(major_return_path, dtype={"trade_date": str}).set_index("trade_date")
         filter_dates = (major_return_df.index >= base_date) & (major_return_df.index < stp_date)
         major_return_df = major_return_df.loc[filter_dates]
+
         major_return_df["aver_oi"] = major_return_df["oi"].rolling(window=2).mean()
         major_return_df["turnover"] = major_return_df["volume"] / major_return_df["aver_oi"]
         x, y = "turnover", "instru_idx"

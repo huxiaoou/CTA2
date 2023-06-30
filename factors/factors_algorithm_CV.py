@@ -37,6 +37,7 @@ def factors_algorithm_CV(
         major_return_df["mu"] = major_return_df["major_return"].rolling(window=cv_window).mean()
         major_return_df["sd"] = major_return_df["major_return"].rolling(window=cv_window).std()
         major_return_df[factor_lbl] = major_return_df["sd"] / major_return_df["mu"].abs()
+        major_return_df = major_return_df.loc[major_return_df.index >= bgn_date]
         all_factor_data[instrument] = major_return_df[factor_lbl]
 
     # --- reorganize

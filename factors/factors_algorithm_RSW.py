@@ -52,11 +52,11 @@ def factors_algorithm_RSW(
         major_minor_df = major_minor_df.loc[filter_dates]
 
         instrument_df: pd.DataFrame = pd.merge(left=major_minor_df, right=instrument_df, how="left", left_index=True, right_index=True)
-
         instrument_df = instrument_df.fillna(method="ffill").fillna(0)
         instrument_df[lag_label] = instrument_df["in_stock"].rolling(window=rs_window).apply(lambda z: z @ wgt_ary)
         instrument_df[factor_lbl] = instrument_df[["in_stock", lag_label]].apply(
             cal_registered_stock_change_ratio, args=("in_stock", lag_label, rsw_lower_lim, return_scale), axis=1)
+        instrument_df = instrument_df.loc[instrument_df.index >= bgn_date]
         all_factor_data[instrument] = instrument_df[factor_lbl]
 
     # --- reorganize

@@ -34,6 +34,7 @@ def factors_algorithm_CVP(
         major_return_df = pd.read_csv(major_return_path, dtype={"trade_date": str}).set_index("trade_date")
         filter_dates = (major_return_df.index >= base_date) & (major_return_df.index < stp_date)
         major_return_df = major_return_df.loc[filter_dates]
+
         x, y = "volume", "instru_idx"
         cal_rolling_corr(t_major_return_df=major_return_df, t_x=x, t_y=y, t_rolling_window=cvp_window, t_corr_lbl=factor_lbl)
         major_return_df = major_return_df.loc[major_return_df.index >= bgn_date]

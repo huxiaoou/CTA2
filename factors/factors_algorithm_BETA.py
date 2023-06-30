@@ -45,10 +45,10 @@ def factors_algorithm_BETA(
         major_return_df["xx"] = (major_return_df["market"] * major_return_df["market"]).rolling(window=beta_window).mean()
         major_return_df["y"] = major_return_df["major_return"].rolling(window=beta_window).mean()
         major_return_df["x"] = major_return_df["market"].rolling(window=beta_window).mean()
-
         major_return_df["cov_xy"] = major_return_df["xy"] - major_return_df["x"] * major_return_df["y"]
         major_return_df["cov_xx"] = major_return_df["xx"] - major_return_df["x"] * major_return_df["x"]
         major_return_df[factor_lbl] = major_return_df["cov_xy"] / major_return_df["cov_xx"]
+        major_return_df = major_return_df.loc[major_return_df.index >= bgn_date]
         all_factor_data[instrument] = major_return_df[factor_lbl]
 
     # --- reorganize

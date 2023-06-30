@@ -26,6 +26,7 @@ def factors_algorithm_MTM(
     iter_dates = calendar.get_iter_list(bgn_date, stp_date, True)
     base_date = calendar.get_next_date(iter_dates[0], -mtm_window)
 
+    # --- calculate factors by instrument
     all_factor_data = {}
     for instrument in concerned_instruments_universe:
         major_return_file = "major_return.{}.{}.csv.gz".format(instrument, price_type)
@@ -33,7 +34,9 @@ def factors_algorithm_MTM(
         major_return_df = pd.read_csv(major_return_path, dtype={"trade_date": str}).set_index("trade_date")
         filter_dates = (major_return_df.index >= base_date) & (major_return_df.index < stp_date)
         major_return_df = major_return_df.loc[filter_dates]
+
         major_return_df[factor_lbl] = (major_return_df["instru_idx"] / major_return_df["instru_idx"].shift(mtm_window) - 1) * return_scale
+        major_return_df = major_return_df.loc[major_return_df.index >= bgn_date]
         all_factor_data[instrument] = major_return_df[factor_lbl]
 
     # --- reorganize
