@@ -8,6 +8,10 @@ from factors.factors_algorithm_BASIS import cal_factors_exposure_basis_mp
 from factors.factors_algorithm_BETA import cal_factors_exposure_beta_mp
 from factors.factors_algorithm_CSP import cal_factors_exposure_csp_mp
 from factors.factors_algorithm_CSR import cal_factors_exposure_csr_mp
+from factors.factors_algorithm_CTP import cal_factors_exposure_ctp_mp
+from factors.factors_algorithm_CTR import cal_factors_exposure_ctr_mp
+from factors.factors_algorithm_CVP import cal_factors_exposure_cvp_mp
+from factors.factors_algorithm_CVR import cal_factors_exposure_cvr_mp
 from factors.factors_algorithm_CV import cal_factors_exposure_cv_mp
 from factors.factors_algorithm_MTM import cal_factors_exposure_mtm_mp
 from factors.factors_algorithm_RSW import cal_factors_exposure_rsw_mp
@@ -142,6 +146,42 @@ if __name__ == "__main__":
                                         )
         if factor == "CSR":
             cal_factors_exposure_csr_mp(proc_num=proc_num, csr_windows=factors_args["CSR"],
+                                        run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+                                        concerned_instruments_universe=concerned_instruments_universe,
+                                        factors_exposure_dir=factors_exposure_dir,
+                                        major_return_dir=major_return_dir,
+                                        calendar_path=calendar_path,
+                                        database_structure=database_structure,
+                                        )
+        if factor == "CTP":
+            cal_factors_exposure_ctp_mp(proc_num=proc_num, ctp_windows=factors_args["CTP"],
+                                        run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+                                        concerned_instruments_universe=concerned_instruments_universe,
+                                        factors_exposure_dir=factors_exposure_dir,
+                                        major_return_dir=major_return_dir,
+                                        calendar_path=calendar_path,
+                                        database_structure=database_structure,
+                                        )
+        if factor == "CTR":
+            cal_factors_exposure_ctr_mp(proc_num=proc_num, ctr_windows=factors_args["CTR"],
+                                        run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+                                        concerned_instruments_universe=concerned_instruments_universe,
+                                        factors_exposure_dir=factors_exposure_dir,
+                                        major_return_dir=major_return_dir,
+                                        calendar_path=calendar_path,
+                                        database_structure=database_structure,
+                                        )
+        if factor == "CVP":
+            cal_factors_exposure_cvp_mp(proc_num=proc_num, cvp_windows=factors_args["CVP"],
+                                        run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+                                        concerned_instruments_universe=concerned_instruments_universe,
+                                        factors_exposure_dir=factors_exposure_dir,
+                                        major_return_dir=major_return_dir,
+                                        calendar_path=calendar_path,
+                                        database_structure=database_structure,
+                                        )
+        if factor == "CVR":
+            cal_factors_exposure_cvr_mp(proc_num=proc_num, cvr_windows=factors_args["CVR"],
                                         run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
                                         concerned_instruments_universe=concerned_instruments_universe,
                                         factors_exposure_dir=factors_exposure_dir,
