@@ -50,6 +50,7 @@ major_return_dir = os.path.join(futures_by_instrument_dir, global_config["future
 md_by_instru_dir = os.path.join(futures_by_instrument_dir, global_config["futures"]["md_by_instru_dir"])
 fundamental_by_instru_dir = os.path.join(futures_by_instrument_dir, global_config["futures"]["fundamental_by_instru_dir"])
 
+# library
 factors_library_dir = os.path.join(futures_dir, global_config["futures"]["cta_dir"])
 instruments_return_dir = os.path.join(factors_library_dir, "instruments_return")
 available_universe_dir = os.path.join(factors_library_dir, "available_universe")

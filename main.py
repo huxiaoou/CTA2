@@ -24,17 +24,18 @@ from factors.factors_algorithm_TS import cal_factors_exposure_ts_mp
 from factors.factors_algorithm_VOL import cal_factors_exposure_vol_mp
 from factors.factors_neutral import cal_factors_neutral_mp
 from factors.factors_normalize_delinear import cal_factors_normalize_and_delinear_mp
+from factors.factors_return import cal_factors_return_mp
 
 from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_instru_dir, fundamental_by_instru_dir, \
     instruments_return_dir, available_universe_dir, \
     test_return_dir, test_return_neutral_dir, \
     factors_exposure_dir, factors_exposure_neutral_dir, \
     factors_exposure_norm_dir, factors_exposure_delinear_dir, \
-    factors_return_dir, \
+    factors_return_dir, factors_portfolio_dir, instruments_residual_dir, \
     calendar_path
-from config_factor import concerned_instruments_universe, sector_classification, \
+from config_factor import concerned_instruments_universe, sector_classification, sectors, \
     available_universe_options, test_windows, factors_args, factors, neutral_method, \
-    factors_pool_options
+    factors_pool_options, factors_return_lags
 from struct_lib import database_structure
 
 if __name__ == "__main__":
@@ -58,7 +59,9 @@ if __name__ == "__main__":
             "factors/exposure": "20130101",
             "factors/exposure_neutral": "20130101",
             
-            "factors/exposure_norm_and_delinear": "20130201", # some factors with a large window (such as 252) would start at about this time 
+            "factors/exposure_norm_and_delinear": "20130201", # some factors with a large window (such as 252) would start at about this time
+            
+            "factors/return": "20140101", #  
         }
         """)
     args_parser.add_argument("-s", "--stp", type=str, help="""
@@ -76,7 +79,7 @@ if __name__ == "__main__":
 
     args = args_parser.parse_args()
     switch = args.switch.upper()
-    run_mode = args.mode.upper() if switch in ["AU", "TR", "TRN", "FE", "FEN"] else None
+    run_mode = None if switch in ["IR", "MR"] else args.mode.upper()
     bgn_date, stp_date = args.bgn, args.stp
     proc_num = args.process
     factor = args.factor.upper()
@@ -306,7 +309,7 @@ if __name__ == "__main__":
             factors_exposure_neutral_dir=factors_exposure_neutral_dir,
             database_structure=database_structure,
         )
-    elif switch in ["DEL"]:
+    elif switch in ["DELN"]:
         cal_factors_normalize_and_delinear_mp(
             proc_num=proc_num, pids=list(factors_pool_options.keys()),
             selected_factors_pool=factors_pool_options["P3"],
@@ -318,6 +321,20 @@ if __name__ == "__main__":
             factors_exposure_dir=factors_exposure_dir,
             factors_exposure_norm_dir=factors_exposure_norm_dir,
             factors_exposure_delinear_dir=factors_exposure_delinear_dir,
+            database_structure=database_structure,
+        )
+    elif switch in ["FR"]:
+        cal_factors_return_mp(
+            proc_num=proc_num, pids=["P3"], factors_pool_options=factors_pool_options,
+            neutral_methods=["WS"], test_windows=test_windows, factors_return_lags=factors_return_lags,
+            run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+            sectors=sectors, sector_classification=sector_classification,
+            concerned_instruments_universe=concerned_instruments_universe,
+            available_universe_dir=available_universe_dir,
+            factors_exposure_delinear_dir=factors_exposure_delinear_dir, test_return_dir=test_return_dir,
+            factors_return_dir=factors_return_dir, factors_portfolio_dir=factors_portfolio_dir,
+            instruments_residual_dir=instruments_residual_dir,
+            calendar_path=calendar_path,
             database_structure=database_structure,
         )
     else:

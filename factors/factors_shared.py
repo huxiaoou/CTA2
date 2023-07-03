@@ -72,71 +72,11 @@ def neutralize_by_sector(t_raw_data: pd.Series, t_sector_df: pd.DataFrame, t_wei
 
 
 # -----------------------------------------
-# --- Part III: factor exposure process ---
-
-
-def cal_risk_factor_return_colinear(t_r: np.ndarray, t_x: np.ndarray, t_instru_wgt: np.ndarray, t_sector_wgt: np.ndarray):
-    """
-
-    :param t_r: n x 1, n: number of instruments
-    :param t_x: n x K, K = 1 + k, k = p + q; p = number of sectors; q = number of style factors; 1 = market; K: number of all risk factors
-    :param t_instru_wgt: n x 1, weight (market value) for each instrument
-    :param t_sector_wgt: p x 1, weight (market value) of each sector
-    :return:
-    """
-    _n, _K = t_x.shape
-    _p = len(t_sector_wgt)
-    _q = _K - 1 - _p
-    _R11_up_ = np.diag(np.ones(_p))  # p x p
-    _R11_dn_ = np.concatenate(([0], -t_sector_wgt[:-1] / t_sector_wgt[-1]))  # 1 x p, linear constrain: \sum_{i=1}^kw_iR_i = 0, R_i: sector return, output of this function
-    _R11 = np.vstack((_R11_up_, _R11_dn_))  # (p + 1) x p
-    _R12 = np.zeros(shape=(_p + 1, _q))
-    _R21 = np.zeros(shape=(_q, _p))
-    _R22 = np.diag(np.ones(_q))
-    _R = np.vstack((np.hstack((_R11, _R12)), np.hstack((_R21, _R22))))  # (p + q + 1) x (p + q) = K x (K - 1)
-    _v_raw = np.sqrt(t_instru_wgt)
-    _v = np.diag(_v_raw / np.sum(_v_raw))  # n x n
-
-    #
-    # Omega = R((XR)'VXR)^{-1} (XR)'V # size = K x n
-    # f = Omega * r
-    # Omega * X = E_{kk} # size = K x K
-    # Omega *XR = R
-
-    _XR = t_x.dot(_R)  # n x (K-1)
-    _P = _XR.T.dot(_v).dot(_XR)  # (K-1) x (K-1)
-    _Omega = _R.dot(np.linalg.inv(_P).dot(_XR.T.dot(_v)))  # K x n
-    _f = _Omega.dot(t_r)  # K x 1
-    return _f, _Omega
-
-
-def check_for_factor_return_colinear(t_r: np.ndarray, t_x: np.ndarray, t_instru_wgt: np.ndarray, t_factor_ret: np.ndarray):
-    """
-
-    :param t_r: same as the t_r in cal_risk_factor_return_colinear
-    :param t_x: same as the t_x in cal_risk_factor_return_colinear
-    :param t_instru_wgt: same as the t_instru_wgt in cal_risk_factor_return_colinear
-    :param t_factor_ret: _f in cal_risk_factor_return_colinear
-    :return:
-    """
-    _rh = t_x @ t_factor_ret
-    _residual = t_r - _rh
-    _w = np.sqrt(t_instru_wgt)
-    _r_wgt_mean = t_r.dot(_w)
-    _sst = np.sum((t_r - _r_wgt_mean) ** 2 * _w)
-    _ssr = np.sum((_rh - _r_wgt_mean) ** 2 * _w)
-    _sse = np.sum(_residual ** 2 * _w)
-    _rsq = _ssr / _sst
-    _err = np.abs(_sst - _ssr - _sse)
-    return _residual, _sst, _ssr, _sse, _rsq, _err
-
-
-# -----------------------------------------
 # --- Part IV: Regression ---
 def fun_for_factors_return(t_pid_list: list, t_test_window_list: list, t_factors_return_lag_list: list,
                            t_run_mode: str, t_bgn_date: str, t_stp_date: str):
     for pid, test_window, factors_return_lag in product(t_pid_list, t_test_window_list, t_factors_return_lag_list):
-        subprocess.run(["python", "07_factors_return.py",
+        subprocess.run(["python", "factors_return.py",
                         "--pid", pid, "--testWin", str(test_window), "--lag", str(factors_return_lag),
                         "--mode", t_run_mode, "--bgn", t_bgn_date, "--stp", t_stp_date])
     return 0

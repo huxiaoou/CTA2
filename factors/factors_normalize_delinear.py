@@ -1,10 +1,8 @@
 import datetime as dt
 import multiprocessing as mp
-
 import numpy as np
 import pandas as pd
-from skyrim.falkreath import CManagerLibReader, CManagerLibWriterByDate, CLib1Tab1
-
+from skyrim.falkreath import CManagerLibReader, CManagerLibWriter, CLib1Tab1
 from factors.factors_shared import transform_dist, neutralize_by_sector
 
 
@@ -201,8 +199,8 @@ def factors_normalize_and_delinear(
     # --- initialize output factor lib
     norm_lib_id = "{}.{}.NORM".format(pid, neutral_method)
     deln_lib_id = "{}.{}.DELINEAR".format(pid, neutral_method)
-    norm_lib = CManagerLibWriterByDate(t_db_save_dir=factors_exposure_norm_dir, t_db_name=database_structure[norm_lib_id].m_lib_name)
-    deln_lib = CManagerLibWriterByDate(t_db_save_dir=factors_exposure_delinear_dir, t_db_name=database_structure[deln_lib_id].m_lib_name)
+    norm_lib = CManagerLibWriter(t_db_save_dir=factors_exposure_norm_dir, t_db_name=database_structure[norm_lib_id].m_lib_name)
+    deln_lib = CManagerLibWriter(t_db_save_dir=factors_exposure_delinear_dir, t_db_name=database_structure[deln_lib_id].m_lib_name)
     norm_lib.initialize_table(t_table=database_structure[norm_lib_id].m_tab, t_remove_existence=run_mode in ["O"])
     deln_lib.initialize_table(t_table=database_structure[deln_lib_id].m_tab, t_remove_existence=run_mode in ["O"])
     norm_lib.update(t_update_df=update_df_norm, t_using_index=True)
