@@ -1,8 +1,9 @@
+import os
 import numpy as np
 import pandas as pd
 import scipy.stats as sps
 from itertools import product
-import subprocess
+from skyrim.falkreath import CLib1Tab1, CManagerLibReader
 
 
 # -------------------------------------------
@@ -71,27 +72,22 @@ def neutralize_by_sector(t_raw_data: pd.Series, t_sector_df: pd.DataFrame, t_wei
     return pd.Series(data=_r, index=idx)
 
 
-# -----------------------------------------
-# --- Part IV: Regression ---
-def fun_for_factors_return(t_pid_list: list, t_test_window_list: list, t_factors_return_lag_list: list,
-                           t_run_mode: str, t_bgn_date: str, t_stp_date: str):
-    for pid, test_window, factors_return_lag in product(t_pid_list, t_test_window_list, t_factors_return_lag_list):
-        subprocess.run(["python", "factors_return.py",
-                        "--pid", pid, "--testWin", str(test_window), "--lag", str(factors_return_lag),
-                        "--mode", t_run_mode, "--bgn", t_bgn_date, "--stp", t_stp_date])
-    return 0
+def load_factor_return(test_window: int,
+                       pid: str, neutral_method: str, factors_return_lag: int,
+                       available_factors_list: list[str],
+                       factors_return_dir: str,
+                       database_structure: dict[str, CLib1Tab1]):
+    # --- load lib: factors_return/instruments_residual
+    factors_return_lib_id = "factors_return.{}.{}.TW{:03d}.T{}".format(pid, neutral_method, test_window, factors_return_lag)
+    factors_return_lib = CManagerLibReader(t_db_save_dir=factors_return_dir, t_db_name=database_structure[factors_return_lib_id].m_lib_name)
+    factors_return_lib.set_default(database_structure[factors_return_lib_id].m_tab.m_table_name)
+    factors_return_df = factors_return_lib.read(t_value_columns=["trade_date", "factor", "value"])
+    factors_return_lib.close()
 
-
-def fun_for_factors_return_agg(t_pid_list: list, t_test_window_list: list, t_factors_return_lag_list: list):
-    for pid, test_window, factors_return_lag in product(t_pid_list, t_test_window_list, t_factors_return_lag_list):
-        subprocess.run(["python", "07_factors_return_agg.py", pid, str(test_window), str(factors_return_lag)])
-    return 0
-
-
-def fun_for_derivative_factors_IV(t_pid_list: list, t_test_window_list: list, t_factors_return_lag_list: list):
-    for pid, test_window, factors_return_lag in product(t_pid_list, t_test_window_list, t_factors_return_lag_list):
-        subprocess.run(["python", "08_cal_derivative_factors.IV.py", pid, str(test_window), str(factors_return_lag)])
-    return 0
+    factors_return_agg_df = pd.pivot_table(data=factors_return_df, index="trade_date", columns="factor", values="value", aggfunc=sum)
+    factors_return_agg_df = factors_return_agg_df.sort_index(ascending=True)
+    factors_return_agg_df = factors_return_agg_df[available_factors_list]
+    return factors_return_agg_df
 
 
 if __name__ == "__main__":
