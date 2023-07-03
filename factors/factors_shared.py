@@ -29,19 +29,14 @@ def cal_rolling_corr(t_major_return_df: pd.DataFrame, t_x: str, t_y: str, t_roll
     return 0
 
 
-def cal_wgt_ary(t_half_life: int, t_size: int, t_ascending: bool):
+def transform_dist(t_exposure_srs: pd.Series):
     """
 
-    :param t_half_life:
-    :param t_size:
-    :param t_ascending: if true, the near days would have more weight, otherwise less weight.
-    :return:
+    :param t_exposure_srs:
+    :return: remap an array of any distribution to the union distribution
     """
-    _rou = np.power(0.5, 1 / t_half_life)
-    _ticks = np.arange(t_size, 0, -1) if t_ascending else np.arange(0, t_size, 1)
-    _w = np.power(_rou, _ticks)
-    _w = _w / _w.sum()
-    return _w
+
+    return sps.norm.ppf(t_exposure_srs.rank() / (len(t_exposure_srs) + 1))
 
 
 def neutralize_by_sector(t_raw_data: pd.Series, t_sector_df: pd.DataFrame, t_weight=None):
@@ -78,79 +73,6 @@ def neutralize_by_sector(t_raw_data: pd.Series, t_sector_df: pd.DataFrame, t_wei
 
 # -----------------------------------------
 # --- Part III: factor exposure process ---
-def drop_df_rows_by_nan_prop(t_df: pd.DataFrame, t_factors_list: list, t_nan_prop_threshold: float = 1 - 0.618):
-    """
-
-    :param t_df:
-    :param t_factors_list:
-    :param t_nan_prop_threshold: must be [0, 1]
-    :return:
-    """
-
-    nan_prop = (t_df[t_factors_list].isnull().sum(axis=1) / len(t_factors_list))
-    f = nan_prop <= t_nan_prop_threshold
-    selected_df: pd.DataFrame = t_df.loc[f]
-    m = selected_df.median()
-    selected_df_fillna = selected_df.fillna(m)
-    return selected_df_fillna
-
-
-def transform_dist(t_exposure_srs: pd.Series):
-    """
-
-    :param t_exposure_srs:
-    :return: remap an array of any distribution to norm distribution
-    """
-
-    return sps.norm.ppf(t_exposure_srs.rank() / (len(t_exposure_srs) + 1))
-
-
-def adjust_weight(t_input_df: pd.DataFrame, t_weight_id: str, t_neutral_method: str):
-    # update weight_id according to neutral method
-    if t_neutral_method == "WE":
-        t_input_df["rel_w"] = 1
-    elif t_neutral_method == "WS":
-        t_input_df["rel_w"] = np.sqrt(t_input_df[t_weight_id])
-    else:
-        t_input_df["rel_w"] = t_input_df[t_weight_id]
-    t_input_df["w"] = t_input_df["rel_w"] / t_input_df["rel_w"].sum()
-    return 0
-
-
-def sector_neutralize_factors_pool(t_input_df: pd.DataFrame, t_sectors_list: list, t_factors_list: list, t_weight_id: str = "w"):
-    sector_neutralized_data = {}
-    for factor in t_factors_list:
-        sector_neutralized_data[factor] = neutralize_by_sector(
-            t_raw_data=t_input_df[factor],
-            t_sector_df=t_input_df[t_sectors_list],
-            t_weight=t_input_df[t_weight_id]
-        )
-    return pd.DataFrame(sector_neutralized_data)
-
-
-def normalize(t_sector_neutralized_df: pd.DataFrame, w: pd.Series):
-    m = t_sector_neutralized_df.T @ w
-    s = np.sqrt(((t_sector_neutralized_df - m) ** 2).T @ w)
-    return (t_sector_neutralized_df - m) / s
-
-
-def delinear(t_exposure_df: pd.DataFrame, t_selected_factors_pool: list, w: pd.Series) -> pd.DataFrame:
-    delinear_exposure_data = {}
-    f_h_square_sum = {}
-    for i, fi_lbl in enumerate(t_selected_factors_pool):
-        if i == 0:
-            delinear_exposure_data[fi_lbl] = t_exposure_df[fi_lbl]
-        else:  # i > 0, since the second component
-            fi = t_exposure_df[fi_lbl]
-            projection = 0
-            for j, fj_lbl in zip(range(i), t_selected_factors_pool[0:i]):
-                fj_h = delinear_exposure_data[fj_lbl]
-                projection += fi.dot(w * fj_h) / f_h_square_sum[fj_lbl] * fj_h
-            delinear_exposure_data[fi_lbl] = fi - projection
-        f_h_square_sum[fi_lbl] = delinear_exposure_data[fi_lbl].dot(w * delinear_exposure_data[fi_lbl])
-    delinear_exposure_df = pd.DataFrame(delinear_exposure_data)
-    res_df = normalize(delinear_exposure_df, w)
-    return res_df
 
 
 def cal_risk_factor_return_colinear(t_r: np.ndarray, t_x: np.ndarray, t_instru_wgt: np.ndarray, t_sector_wgt: np.ndarray):
@@ -211,16 +133,6 @@ def check_for_factor_return_colinear(t_r: np.ndarray, t_x: np.ndarray, t_instru_
 
 # -----------------------------------------
 # --- Part IV: Regression ---
-def fun_for_normalize_delinear(t_pid_list: list,
-                               t_run_mode: str, t_bgn_date: str, t_stp_date: str):
-    for pid in t_pid_list:
-        subprocess.run(["python", "05_factors_normalize_delinear.py",
-                        "--pid", pid,
-                        "--mode", t_run_mode, "--bgn", t_bgn_date, "--stp", t_stp_date,
-                        ])
-    return 0
-
-
 def fun_for_factors_return(t_pid_list: list, t_test_window_list: list, t_factors_return_lag_list: list,
                            t_run_mode: str, t_bgn_date: str, t_stp_date: str):
     for pid, test_window, factors_return_lag in product(t_pid_list, t_test_window_list, t_factors_return_lag_list):

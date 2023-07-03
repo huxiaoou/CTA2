@@ -8,7 +8,7 @@ from config_factor import factors, test_windows, factors_return_lags
 from config_factor import factors_bgn_date, test_lag, neutral_method
 from config_factor import factors_pool_bgn_date, factors_pool_options
 from struct_lib import database_structure
-from factors.XFuns import fun_for_factors_return_agg
+from factors.factors_shared import fun_for_factors_return_agg
 from ic_tests.ic_test_single_factor import ic_test_single_factor
 from ic_tests.ic_test_single_factor_neutral import ic_test_single_factor_neutral
 from ic_tests.ic_test_plot_single_factor import ic_test_plot_single_factor

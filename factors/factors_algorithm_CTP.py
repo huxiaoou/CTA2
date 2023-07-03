@@ -4,7 +4,7 @@ import multiprocessing as mp
 import pandas as pd
 from skyrim.falkreath import CManagerLibWriter, CLib1Tab1
 from skyrim.whiterun import CCalendar
-from factors.XFuns import cal_rolling_corr
+from factors.factors_shared import cal_rolling_corr
 
 
 def factors_algorithm_CTP(

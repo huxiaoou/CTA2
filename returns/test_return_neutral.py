@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from skyrim.falkreath import CLib1Tab1, CManagerLibReader, CManagerLibWriterByDate
 from skyrim.whiterun import CCalendar
-from factors.XFuns import neutralize_by_sector
+from factors.factors_shared import neutralize_by_sector
 
 
 def cal_test_return_neutral(

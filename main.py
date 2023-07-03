@@ -23,15 +23,18 @@ from factors.factors_algorithm_TO import cal_factors_exposure_to_mp
 from factors.factors_algorithm_TS import cal_factors_exposure_ts_mp
 from factors.factors_algorithm_VOL import cal_factors_exposure_vol_mp
 from factors.factors_neutral import cal_factors_neutral_mp
+from factors.factors_normalize_delinear import cal_factors_normalize_and_delinear_mp
 
 from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_instru_dir, fundamental_by_instru_dir, \
     instruments_return_dir, available_universe_dir, \
     test_return_dir, test_return_neutral_dir, \
     factors_exposure_dir, factors_exposure_neutral_dir, \
+    factors_exposure_norm_dir, factors_exposure_delinear_dir, \
     factors_return_dir, \
     calendar_path
 from config_factor import concerned_instruments_universe, sector_classification, \
-    available_universe_options, test_windows, factors_args, factors, neutral_method
+    available_universe_options, test_windows, factors_args, factors, neutral_method, \
+    factors_pool_options
 from struct_lib import database_structure
 
 if __name__ == "__main__":
@@ -54,6 +57,8 @@ if __name__ == "__main__":
             
             "factors/exposure": "20130101",
             "factors/exposure_neutral": "20130101",
+            
+            "factors/exposure_norm_and_delinear": "20130201", # some factors with a large window (such as 252) would start at about this time 
         }
         """)
     args_parser.add_argument("-s", "--stp", type=str, help="""
@@ -299,6 +304,20 @@ if __name__ == "__main__":
             available_universe_dir=available_universe_dir,
             factors_exposure_dir=factors_exposure_dir,
             factors_exposure_neutral_dir=factors_exposure_neutral_dir,
+            database_structure=database_structure,
+        )
+    elif switch in ["DEL"]:
+        cal_factors_normalize_and_delinear_mp(
+            proc_num=proc_num, pids=list(factors_pool_options.keys()),
+            selected_factors_pool=factors_pool_options["P3"],
+            neutral_method=neutral_method,
+            run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+            concerned_instruments_universe=concerned_instruments_universe,
+            sector_classification=sector_classification,
+            available_universe_dir=available_universe_dir,
+            factors_exposure_dir=factors_exposure_dir,
+            factors_exposure_norm_dir=factors_exposure_norm_dir,
+            factors_exposure_delinear_dir=factors_exposure_delinear_dir,
             database_structure=database_structure,
         )
     else:

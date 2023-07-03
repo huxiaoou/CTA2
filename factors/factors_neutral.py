@@ -2,7 +2,7 @@ import datetime as dt
 import multiprocessing as mp
 import numpy as np
 import pandas as pd
-from factors.XFuns import neutralize_by_sector, transform_dist
+from factors.factors_shared import transform_dist, neutralize_by_sector
 from skyrim.falkreath import CManagerLibReader, CManagerLibWriter, CLib1Tab1
 
 
@@ -80,7 +80,6 @@ def neutralize_one_factor(factor: str,
     update_df = pd.DataFrame(res_srs).reset_index()
     factor_neutral_lib.update(t_update_df=update_df, t_using_index=False)
     factor_neutral_lib.close()
-    print("...", factor, "neutralized")
     return 0
 
 

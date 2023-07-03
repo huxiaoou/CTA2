@@ -3,8 +3,8 @@ from config_factor import md_bgn_date
 from config_factor import factors_bgn_date
 from config_factor import factors_pool_bgn_date
 from config_factor import test_windows, factors_pool_options, factors_return_lags
-from factors.XFuns import fun_for_normalize_delinear
-from factors.XFuns import fun_for_factors_return
+from factors.factors_shared import fun_for_normalize_delinear
+from factors.factors_shared import fun_for_factors_return
 import subprocess as sp
 
 fix_bgn_date, md_stp_date = sys.argv[1], sys.argv[2]  # format = "YYYYMMDD", we suggest set fix_bgn_date = "20120101"

@@ -7,7 +7,7 @@ from config_factor import sector_classification
 from config_factor import test_lag, universe_id, sectors
 from config_factor import instruments_universe_options, factors_pool_options
 from struct_lib import database_structure
-from factors.XFuns import cal_risk_factor_return_colinear, check_for_factor_return_colinear
+from factors.factors_shared import cal_risk_factor_return_colinear, check_for_factor_return_colinear
 from skyrim.whiterun import CCalendar
 from skyrim.winterhold import plot_bar
 from skyrim.falkreath import CManagerLibReader, CManagerLibWriterByDate

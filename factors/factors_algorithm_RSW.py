@@ -5,7 +5,21 @@ import numpy as np
 import pandas as pd
 from skyrim.falkreath import CManagerLibWriter, CLib1Tab1
 from skyrim.whiterun import CCalendar
-from factors.XFuns import cal_wgt_ary
+
+
+def cal_wgt_ary(t_half_life: int, t_size: int, t_ascending: bool):
+    """
+
+    :param t_half_life:
+    :param t_size:
+    :param t_ascending: if true, the near days would have more weight, otherwise less weight.
+    :return:
+    """
+    _rou = np.power(0.5, 1 / t_half_life)
+    _ticks = np.arange(t_size, 0, -1) if t_ascending else np.arange(0, t_size, 1)
+    _w = np.power(_rou, _ticks)
+    _w = _w / _w.sum()
+    return _w
 
 
 def cal_registered_stock_change_ratio(t_x: pd.Series, t_this_lbl: str, t_prev_lbl: str, t_lower_lim: float, t_ret_scale: int):
