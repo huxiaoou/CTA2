@@ -26,6 +26,7 @@ from factors.factors_neutral import cal_factors_neutral_mp
 from factors.factors_normalize_delinear import cal_factors_normalize_and_delinear_mp
 from factors.factors_return import cal_factors_return_mp
 from signals.signals_pure_factors_VANILLA import cal_signals_vanilla_mp
+from signals.signals_pure_factors_MA import cal_signals_ma_mp
 
 from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_instru_dir, fundamental_by_instru_dir, \
     instruments_return_dir, available_universe_dir, \
@@ -38,7 +39,8 @@ from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_
 from config_factor import concerned_instruments_universe, sector_classification, sectors, \
     available_universe_options, test_windows, factors_args, factors, neutral_method, \
     factors_pool_options, factors_return_lags
-from config_portfolio import available_factors
+from config_portfolio import available_factors, timing_factors, \
+    pid, factors_return_lag, fast_n_slow_n_comb
 from struct_lib_portfolio import database_structure
 
 if __name__ == "__main__":
@@ -343,7 +345,7 @@ if __name__ == "__main__":
     elif switch in ["SIGV"]:
         cal_signals_vanilla_mp(
             proc_num=proc_num,
-            test_windows=test_windows, pids=["P3"], neutral_methods=["WS"], factors_return_lags=factors_return_lags,
+            test_windows=test_windows, pids=[pid], neutral_methods=[neutral_method], factors_return_lags=[factors_return_lag],
             run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
             available_factors=available_factors,
             factors_portfolio_dir=factors_portfolio_dir,
@@ -351,6 +353,18 @@ if __name__ == "__main__":
             calendar_path=calendar_path,
             database_structure=database_structure,
         )
-
+    elif switch in ["SIGM"]:
+        cal_signals_ma_mp(
+            proc_num=proc_num,
+            test_windows=test_windows, pids=[pid], neutral_methods=[neutral_method], factors_return_lags=[factors_return_lag],
+            fast_n_slow_n_comb=fast_n_slow_n_comb,
+            run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+            timing_factors=timing_factors,
+            factors_return_dir=factors_return_dir,
+            factors_portfolio_dir=factors_portfolio_dir,
+            signals_dir=signals_dir,
+            calendar_path=calendar_path,
+            database_structure=database_structure,
+        )
     else:
         print(f"... switch = {switch} is not a legal option, please check again.")

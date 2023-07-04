@@ -5,14 +5,15 @@ from skyrim.whiterun import CCalendar
 from skyrim.falkreath import CLib1Tab1, CManagerLibReader, CManagerLibWriterByDate
 
 
-def pure_factors_vanilla(test_window: int, pid: str, neutral_method: str, factors_return_lag: int,
-                         run_mode: str, bgn_date: str, stp_date: str | None,
-                         available_factors: list[str],
-                         factors_portfolio_dir: str,
-                         signals_dir: str,
-                         calendar_path: str,
-                         database_structure: dict[str, CLib1Tab1],
-                         ):
+def pure_factors_vanilla(
+        test_window: int, pid: str, neutral_method: str, factors_return_lag: int,
+        run_mode: str, bgn_date: str, stp_date: str | None,
+        available_factors: list[str],
+        factors_portfolio_dir: str,
+        signals_dir: str,
+        calendar_path: str,
+        database_structure: dict[str, CLib1Tab1],
+):
     if stp_date is None:
         stp_date = (dt.datetime.strptime(bgn_date, "%Y%m%d") + dt.timedelta(days=1)).strftime("%Y%m%d")
 
@@ -44,7 +45,8 @@ def pure_factors_vanilla(test_window: int, pid: str, neutral_method: str, factor
         wgt_norm_df = factors_portfolio_df / wgt_abs_sum
         wgt_df = wgt_norm_df
         for factor in available_factors:
-            signals_writers[factor].update_by_date(
+            signal_lib = signals_writers[factor]
+            signal_lib.update_by_date(
                 t_date=trade_date,
                 t_update_df=wgt_df[[factor]],
                 t_using_index=True
@@ -55,9 +57,10 @@ def pure_factors_vanilla(test_window: int, pid: str, neutral_method: str, factor
     return 0
 
 
-def cal_signals_vanilla_mp(proc_num: int,
-                           test_windows: list[int], pids: list[str], neutral_methods: list[str], factors_return_lags: list[int],
-                           **kwargs):
+def cal_signals_vanilla_mp(
+        proc_num: int,
+        test_windows: list[int], pids: list[str], neutral_methods: list[str], factors_return_lags: list[int],
+        **kwargs):
     t0 = dt.datetime.now()
     pool = mp.Pool(processes=proc_num)
     for tw, p, nm, lag in itertools.product(test_windows, pids, neutral_methods, factors_return_lags):

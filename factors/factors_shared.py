@@ -74,7 +74,7 @@ def neutralize_by_sector(t_raw_data: pd.Series, t_sector_df: pd.DataFrame, t_wei
 
 def load_factor_return(test_window: int,
                        pid: str, neutral_method: str, factors_return_lag: int,
-                       available_factors: list[str],
+                       loading_factors: list[str],
                        factors_return_dir: str,
                        database_structure: dict[str, CLib1Tab1]):
     # --- load lib: factors_return/instruments_residual
@@ -86,7 +86,7 @@ def load_factor_return(test_window: int,
 
     factors_return_agg_df = pd.pivot_table(data=factors_return_df, index="trade_date", columns="factor", values="value", aggfunc=sum)
     factors_return_agg_df = factors_return_agg_df.sort_index(ascending=True)
-    factors_return_agg_df = factors_return_agg_df[available_factors]
+    factors_return_agg_df = factors_return_agg_df[loading_factors]
     return factors_return_agg_df
 
 

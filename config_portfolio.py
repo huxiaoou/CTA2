@@ -3,9 +3,6 @@ from config_factor import sectors, sector_classification
 from config_factor import factors_pool_options, factors
 from config_factor import concerned_instruments_universe
 
-hold_period_n_list = test_windows
-factors_return_lag = 0  # the core difference between "Project_2022_11_Commodity_Factors_Return_Analysis_V4B"
-
 # secondary parameters
 cost_rate = 5e-4
 cost_reservation = 0e-4
@@ -16,6 +13,8 @@ minimum_abs_weight = 0.001
 
 # Local
 pid = "P3"
+factors_return_lag = 0  # the core difference between "Project_2022_11_Commodity_Factors_Return_Analysis_V4B"
+
 selected_sectors = [z for z in sectors if z in set(sector_classification[i] for i in concerned_instruments_universe)]
 selected_factors = factors_pool_options[pid]
 available_factors = ["MARKET"] + selected_sectors + selected_factors
