@@ -25,6 +25,7 @@ from factors.factors_algorithm_VOL import cal_factors_exposure_vol_mp
 from factors.factors_neutral import cal_factors_neutral_mp
 from factors.factors_normalize_delinear import cal_factors_normalize_and_delinear_mp
 from factors.factors_return import cal_factors_return_mp
+from signals.signals_pure_factors_VANILLA import cal_signals_vanilla_mp
 
 from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_instru_dir, fundamental_by_instru_dir, \
     instruments_return_dir, available_universe_dir, \
@@ -32,11 +33,13 @@ from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_
     factors_exposure_dir, factors_exposure_neutral_dir, \
     factors_exposure_norm_dir, factors_exposure_delinear_dir, \
     factors_return_dir, factors_portfolio_dir, instruments_residual_dir, \
+    signals_dir, \
     calendar_path
 from config_factor import concerned_instruments_universe, sector_classification, sectors, \
     available_universe_options, test_windows, factors_args, factors, neutral_method, \
     factors_pool_options, factors_return_lags
-from struct_lib import database_structure
+from config_portfolio import available_factors
+from struct_lib_portfolio import database_structure
 
 if __name__ == "__main__":
     args_parser = argparse.ArgumentParser(description="Entry point of this project")
@@ -337,5 +340,17 @@ if __name__ == "__main__":
             calendar_path=calendar_path,
             database_structure=database_structure,
         )
+    elif switch in ["SIGV"]:
+        cal_signals_vanilla_mp(
+            proc_num=proc_num,
+            test_windows=test_windows, pids=["P3"], neutral_methods=["WS"], factors_return_lags=factors_return_lags,
+            run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+            available_factors=available_factors,
+            factors_portfolio_dir=factors_portfolio_dir,
+            signals_dir=signals_dir,
+            calendar_path=calendar_path,
+            database_structure=database_structure,
+        )
+
     else:
         print(f"... switch = {switch} is not a legal option, please check again.")

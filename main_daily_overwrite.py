@@ -53,12 +53,12 @@ for test_window in test_windows:
 print(sep)
 
 for test_window in test_windows:
-    sp.run(["python", "12_pure_factors_signals_VANILLA.py", "--testWin", str(test_window),
+    sp.run(["python", "signals_pure_factors_VANILLA.py", "--testWin", str(test_window),
             "--mode", "o", "--bgn", md_bgn_date, "--stp", md_stp_date])
 print(sep)
 
 for test_window in test_windows:
-    sp.run(["python", "12_pure_factors_signals_MA.py", "--testWin", str(test_window),
+    sp.run(["python", "signals_pure_factors_MA.py", "--testWin", str(test_window),
             "--mode", "o", "--bgn", md_bgn_date, "--stp", md_stp_date])
 print(sep)
 

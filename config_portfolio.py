@@ -1,7 +1,7 @@
 from config_factor import test_windows
 from config_factor import sectors, sector_classification
-from config_factor import instruments_universe_options, universe_id
 from config_factor import factors_pool_options, factors
+from config_factor import concerned_instruments_universe
 
 hold_period_n_list = test_windows
 factors_return_lag = 0  # the core difference between "Project_2022_11_Commodity_Factors_Return_Analysis_V4B"
@@ -16,10 +16,10 @@ minimum_abs_weight = 0.001
 
 # Local
 pid = "P3"
-selected_sectors_list = [z for z in sectors if z in set(sector_classification[i] for i in instruments_universe_options[universe_id])]
-selected_factors_list = factors_pool_options[pid]
-available_factors_list = ["MARKET"] + selected_sectors_list + selected_factors_list
-timing_factors_list = ["MARKET"] + selected_sectors_list
+selected_sectors = [z for z in sectors if z in set(sector_classification[i] for i in concerned_instruments_universe)]
+selected_factors = factors_pool_options[pid]
+available_factors = ["MARKET"] + selected_sectors + selected_factors
+timing_factors = ["MARKET"] + selected_sectors
 
 fast_n_slow_n_comb = (
     (5, 63),
@@ -211,12 +211,12 @@ if __name__ == "__main__":
 
     print("Total number of factors = {}".format(len(factors)))  # 103
     print("\n".join(factors))
-    print(selected_sectors_list)
-    print(selected_factors_list)
-    print(available_factors_list)
-    print("Sectors N:{:>2d}".format(len(selected_sectors_list)))
-    print("Factors N:{:>2d}".format(len(selected_factors_list)))
-    print("ALL     N:{:>2d}".format(len(available_factors_list)))
+    print(selected_sectors)
+    print(selected_factors)
+    print(available_factors)
+    print("Sectors N:{:>2d}".format(len(selected_sectors)))
+    print("Factors N:{:>2d}".format(len(selected_factors)))
+    print("ALL     N:{:>2d}".format(len(available_factors)))
 
     comp_struct = {}
     for k, v in allocation_options.items():

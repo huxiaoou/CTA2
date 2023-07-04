@@ -7,7 +7,7 @@ from skyrim.whiterun import CCalendar
 from skyrim.falkreath import CManagerLibReader, CManagerLibWriterByDate
 from config_factor import test_windows
 from config_portfolio import minimum_abs_weight
-from config_portfolio import timing_factors_list, fast_n_slow_n_comb
+from config_portfolio import timing_factors, fast_n_slow_n_comb
 from struct_lib_portfolio import database_structure
 import argparse
 
@@ -27,7 +27,7 @@ ahead_bgn_date = (dt.datetime.strptime(bgn_date, "%Y%m%d") - dt.timedelta(days=t
 # --- init calendar
 cne_calendar = CCalendar(t_path=calendar_path)
 
-for factor_lbl, mov_ave_len, (fn, sn) in ittl.product(timing_factors_list, test_windows, fast_n_slow_n_comb):
+for factor_lbl, mov_ave_len, (fn, sn) in ittl.product(timing_factors, test_windows, fast_n_slow_n_comb):
     src_factor_id = "pure_factors_MA.{}.TW{:03d}.FAST{:03d}.SLOW{:03d}".format(factor_lbl, mov_ave_len, fn, sn)
     opt_factor_id = "{}F{:03d}S{:03d}M{:03d}".format(factor_lbl, fn, sn, mov_ave_len)
 

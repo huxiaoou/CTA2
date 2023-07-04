@@ -9,9 +9,9 @@ from setup_factor_and_portfolio import evaluations_opt_dir
 from setup_factor_and_portfolio import by_year_dir
 from config_factor import universe_id, instruments_universe_options
 from config_portfolio import test_windows
-from config_portfolio import available_factors_list, selected_sectors_list, selected_factors_list
+from config_portfolio import available_factors, selected_sectors, selected_factors
 from config_portfolio import allocation_options, synth_options
-from config_portfolio import fast_n_slow_n_comb, timing_factors_list
+from config_portfolio import fast_n_slow_n_comb, timing_factors
 from config_portfolio import risk_free_rate, cost_rate, cost_reservation, init_premium
 from struct_lib_portfolio import database_structure
 from simulations.XFuns import fun_for_simulation_factors
@@ -34,10 +34,10 @@ if __name__ == "__main__":
 
     # set factors
     vanilla_factors = ["{}VM{:03d}".format(factor_lbl, mov_ave_len)
-                       for factor_lbl, mov_ave_len in ittl.product(available_factors_list, test_windows)]
+                       for factor_lbl, mov_ave_len in ittl.product(available_factors, test_windows)]
     ma_factors = ["{}F{:03d}S{:03d}M{:03d}".format(factor_lbl, fn, sn, mov_ave_len)
                   for factor_lbl, mov_ave_len, (fn, sn) in
-                  ittl.product(timing_factors_list, test_windows, fast_n_slow_n_comb)]
+                  ittl.product(timing_factors, test_windows, fast_n_slow_n_comb)]
     alloc_id_opt_list = ["{}M{:03d}".format(aid, tw) for aid, tw in ittl.product(
         list(synth_options) + list(allocation_options), test_windows)]
 
@@ -120,23 +120,23 @@ if __name__ == "__main__":
 
         evaluation_multiple_by_year_plot_nav(
             "comb_sector_VM005",
-            [(z + "VM005", 1) for z in ["MARKET"] + selected_sectors_list],
+            [(z + "VM005", 1) for z in ["MARKET"] + selected_sectors],
             evaluations_opt_dir, by_year_dir
         )
         evaluation_multiple_by_year_plot_nav(
             "comb_sector_VM020",
-            [(z + "VM020", 1) for z in ["MARKET"] + selected_sectors_list],
+            [(z + "VM020", 1) for z in ["MARKET"] + selected_sectors],
             evaluations_opt_dir, by_year_dir
         )
 
         evaluation_multiple_by_year_plot_nav(
             "comb_style_VM005",
-            [(z + "VM005", 1) for z in selected_factors_list],
+            [(z + "VM005", 1) for z in selected_factors],
             evaluations_opt_dir, by_year_dir
         )
         evaluation_multiple_by_year_plot_nav(
             "comb_style_VM020",
-            [(z + "VM020", 1) for z in selected_factors_list],
+            [(z + "VM020", 1) for z in selected_factors],
             evaluations_opt_dir, by_year_dir
         )
 

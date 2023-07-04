@@ -3,7 +3,7 @@ from setup_factor_and_portfolio import factors_return_reformat_dir, calendar_pat
 from setup_factor_and_portfolio import factors_portfolio_dir, signals_dir
 from config_factor import neutral_method, RETURN_SCALE
 from config_portfolio import pid, factors_return_lag
-from config_portfolio import timing_factors_list
+from config_portfolio import timing_factors
 from config_portfolio import fast_n_slow_n_comb
 from struct_lib_portfolio import database_structure
 from skyrim.whiterun import CCalendar
@@ -34,7 +34,7 @@ factors_return_lib_id = "factors_return.{}".format(test_id)
 factors_return_agg_file = "{}.csv.gz".format(factors_return_lib_id)
 factors_return_agg_path = os.path.join(factors_return_reformat_dir, factors_return_agg_file)
 factors_return_agg_df = pd.read_csv(factors_return_agg_path, dtype={"trade_date": str}).set_index("trade_date") / RETURN_SCALE
-factors_return_agg_df = factors_return_agg_df[timing_factors_list]
+factors_return_agg_df = factors_return_agg_df[timing_factors]
 factors_return_agg_cumsum_df = factors_return_agg_df.cumsum()
 
 # --- pure factor portfolio data
@@ -52,7 +52,7 @@ for fast_n, slow_n in fast_n_slow_n_comb:
 
     # --- signals writer
     signals_writers = {}
-    for factor in timing_factors_list:
+    for factor in timing_factors:
         signal_lib_id = "pure_factors_MA.{}.TW{:03d}.FAST{:03d}.SLOW{:03d}".format(factor, test_window, fast_n, slow_n)
         signal_lib = CManagerLibWriterByDate(t_db_save_dir=signals_dir, t_db_name=database_structure[signal_lib_id].m_lib_name)
         signal_lib.initialize_table(t_table=database_structure[signal_lib_id].m_tab, t_remove_existence=run_mode in ["O"])
@@ -68,7 +68,7 @@ for fast_n, slow_n in fast_n_slow_n_comb:
 
         factors_portfolio_df = factors_portfolio_lib.read_by_date(
             t_trade_date=trade_date,
-            t_value_columns=["instrument"] + timing_factors_list
+            t_value_columns=["instrument"] + timing_factors
         ).set_index("instrument")
 
         wgt_abs_sum = factors_portfolio_df.abs().sum()
@@ -76,7 +76,7 @@ for fast_n, slow_n in fast_n_slow_n_comb:
         direction_srs = direction_df.loc[trade_date]
         wgt_df = wgt_norm_df.apply(lambda z: z * direction_srs, axis=1)
 
-        for factor in timing_factors_list:
+        for factor in timing_factors:
             signal_lib_id = signals_writers[factor]["id"]
             signal_lib = signals_writers[factor]["lib"]
             signal_lib.update_by_date(
@@ -85,7 +85,7 @@ for fast_n, slow_n in fast_n_slow_n_comb:
                 t_using_index=True
             )
 
-    for factor in timing_factors_list:
+    for factor in timing_factors:
         signals_writers[factor]["lib"].close()
 
 factors_portfolio_lib.close()
