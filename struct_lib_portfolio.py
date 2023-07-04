@@ -1,4 +1,4 @@
-from config_portfolio import available_factors, timing_factors, fast_n_slow_n_comb, allocation_options, synth_options
+from config_portfolio import available_factors, timing_factors, fast_n_slow_n_comb, pure_portfolio_options, raw_portfolio_options
 from config_portfolio import test_windows
 from struct_lib import database_structure, CLib1Tab1, CTable, ittl
 
@@ -30,7 +30,7 @@ for z in pure_factors_list:
         )
     })
 
-for z in allocation_options:
+for z in pure_portfolio_options:
     database_structure.update({
         z: CLib1Tab1(
             t_lib_name=z + ".db",
@@ -42,7 +42,7 @@ for z in allocation_options:
         )
     })
 
-for z in synth_options:
+for z in raw_portfolio_options:
     database_structure.update({
         z: CLib1Tab1(
             t_lib_name=z + ".db",
@@ -83,7 +83,7 @@ for factor_lbl, mov_ave_len, (fn, sn) in ittl.product(timing_factors, test_windo
     })
 
 # --- for optimization allocation
-for aid, mov_ave_len in ittl.product(list(synth_options) + list(allocation_options), test_windows):
+for aid, mov_ave_len in ittl.product(list(raw_portfolio_options) + list(pure_portfolio_options), test_windows):
     z = "{}M{:03d}".format(aid, mov_ave_len)
     database_structure.update({
         z: CLib1Tab1(

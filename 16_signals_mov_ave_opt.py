@@ -7,7 +7,7 @@ from skyrim.whiterun import CCalendar
 from skyrim.falkreath import CManagerLibReader, CManagerLibWriterByDate
 from config_factor import test_windows
 from config_portfolio import minimum_abs_weight
-from config_portfolio import synth_options, allocation_options
+from config_portfolio import raw_portfolio_options, pure_portfolio_options
 from struct_lib_portfolio import database_structure
 import argparse
 
@@ -27,7 +27,7 @@ ahead_bgn_date = (dt.datetime.strptime(bgn_date, "%Y%m%d") - dt.timedelta(days=t
 # --- init calendar
 cne_calendar = CCalendar(t_path=calendar_path)
 
-for allocation_id, mov_ave_len in ittl.product(list(synth_options) + list(allocation_options), test_windows):
+for allocation_id, mov_ave_len in ittl.product(list(raw_portfolio_options) + list(pure_portfolio_options), test_windows):
     allocation_opt_id = "{}M{:03d}".format(allocation_id, mov_ave_len)
 
     # --- init allocation lib

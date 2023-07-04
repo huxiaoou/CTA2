@@ -28,7 +28,7 @@ fast_n_slow_n_comb = (
 )
 
 FAR_END_DATE_IN_THE_FUTURE = "20330101"
-allocation_options = {
+pure_portfolio_options = {
     # Pure Factors: Long Term
     "A1": {
         FAR_END_DATE_IN_THE_FUTURE: {},
@@ -183,7 +183,7 @@ allocation_options = {
     },
 }
 
-synth_options = {
+raw_portfolio_options = {
     "R1": {
         "RSW252HL063": {"weight": 1 / 6, "SHP": 0.3},
         "BASIS147": {"weight": 1 / 6, "SHP": 0.3},
@@ -218,7 +218,7 @@ if __name__ == "__main__":
     print("ALL     N:{:>2d}".format(len(available_factors)))
 
     comp_struct = {}
-    for k, v in allocation_options.items():
+    for k, v in pure_portfolio_options.items():
         comp_struct[k] = {z: 1 for z in v}
     comp_df = pd.DataFrame(comp_struct)
     print(comp_df)

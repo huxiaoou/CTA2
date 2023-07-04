@@ -27,6 +27,8 @@ from factors.factors_normalize_delinear import cal_factors_normalize_and_delinea
 from factors.factors_return import cal_factors_return_mp
 from signals.signals_pure_factors_VANILLA import cal_signals_vanilla_mp
 from signals.signals_pure_factors_MA import cal_signals_ma_mp
+from signals.signals_portfolio_allocation_raw import cal_signals_raw_mp
+from signals.signals_portfolio_allocation_pure import cal_signals_pure_mp
 
 from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_instru_dir, fundamental_by_instru_dir, \
     instruments_return_dir, available_universe_dir, \
@@ -34,13 +36,13 @@ from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_
     factors_exposure_dir, factors_exposure_neutral_dir, \
     factors_exposure_norm_dir, factors_exposure_delinear_dir, \
     factors_return_dir, factors_portfolio_dir, instruments_residual_dir, \
-    signals_dir, \
+    signals_dir, signals_allocation_dir, signals_opt_dir, \
     calendar_path
 from config_factor import concerned_instruments_universe, sector_classification, sectors, \
     available_universe_options, test_windows, factors_args, factors, neutral_method, \
     factors_pool_options, factors_return_lags
 from config_portfolio import available_factors, timing_factors, \
-    pid, factors_return_lag, fast_n_slow_n_comb
+    pid, factors_return_lag, fast_n_slow_n_comb, raw_portfolio_options, pure_portfolio_options
 from struct_lib_portfolio import database_structure
 
 if __name__ == "__main__":
@@ -66,7 +68,9 @@ if __name__ == "__main__":
             
             "factors/exposure_norm_and_delinear": "20130201", # some factors with a large window (such as 252) would start at about this time
             
-            "factors/return": "20140101", #  
+            "factors/return": "20140101", 
+            "signals/VANILLA": "20140101", 
+            "signals/MA": "20140101", 
         }
         """)
     args_parser.add_argument("-s", "--stp", type=str, help="""
@@ -363,6 +367,28 @@ if __name__ == "__main__":
             factors_return_dir=factors_return_dir,
             factors_portfolio_dir=factors_portfolio_dir,
             signals_dir=signals_dir,
+            calendar_path=calendar_path,
+            database_structure=database_structure,
+        )
+    elif switch in ["SIGAR"]:
+        cal_signals_raw_mp(
+            proc_num=proc_num,
+            raw_portfolio_ids=list(raw_portfolio_options), raw_portfolio_options=raw_portfolio_options,
+            run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+            test_universe=concerned_instruments_universe,
+            available_universe_dir=available_universe_dir,
+            factors_exposure_dir=factors_exposure_dir,
+            signals_allocation_dir=signals_allocation_dir,
+            calendar_path=calendar_path,
+            database_structure=database_structure,
+        )
+    elif switch in ["SIGAP"]:
+        cal_signals_pure_mp(
+            proc_num=proc_num,
+            pure_portfolio_ids=list(pure_portfolio_options), pure_portfolio_options=pure_portfolio_options,
+            run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+            signals_dir=signals_dir,
+            signals_allocation_dir=signals_allocation_dir,
             calendar_path=calendar_path,
             database_structure=database_structure,
         )
