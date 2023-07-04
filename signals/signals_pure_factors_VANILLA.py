@@ -8,7 +8,7 @@ from skyrim.falkreath import CLib1Tab1, CManagerLibReader, CManagerLibWriterByDa
 def pure_factors_vanilla(
         test_window: int, pid: str, neutral_method: str, factors_return_lag: int,
         run_mode: str, bgn_date: str, stp_date: str | None,
-        available_factors: list[str],
+        src_factors: list[str],
         factors_portfolio_dir: str,
         signals_dir: str,
         calendar_path: str,
@@ -29,7 +29,7 @@ def pure_factors_vanilla(
 
     # --- signals writer
     signals_writers = {}
-    for factor in available_factors:
+    for factor in src_factors:
         signal_lib_id = "pure_factors_VANILLA.{}.TW{:03d}".format(factor, test_window)
         signal_lib = CManagerLibWriterByDate(t_db_save_dir=signals_dir, t_db_name=database_structure[signal_lib_id].m_lib_name)
         signal_lib.initialize_table(t_table=database_structure[signal_lib_id].m_tab, t_remove_existence=run_mode in ["O"])
@@ -39,19 +39,19 @@ def pure_factors_vanilla(
     for trade_date in cne_calendar.get_iter_list(bgn_date, stp_date, True):
         factors_portfolio_df = factors_portfolio_lib.read_by_date(
             t_trade_date=trade_date,
-            t_value_columns=["instrument"] + available_factors
+            t_value_columns=["instrument"] + src_factors
         ).set_index("instrument")
         wgt_abs_sum = factors_portfolio_df.abs().sum()
         wgt_norm_df = factors_portfolio_df / wgt_abs_sum
         wgt_df = wgt_norm_df
-        for factor in available_factors:
+        for factor in src_factors:
             signal_lib = signals_writers[factor]
             signal_lib.update_by_date(
                 t_date=trade_date,
                 t_update_df=wgt_df[[factor]],
                 t_using_index=True
             )
-    for factor in available_factors:
+    for factor in src_factors:
         signals_writers[factor].close()
     factors_portfolio_lib.close()
     return 0
