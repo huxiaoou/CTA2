@@ -28,22 +28,24 @@ ahead_bgn_date = (dt.datetime.strptime(bgn_date, "%Y%m%d") - dt.timedelta(days=t
 cne_calendar = CCalendar(t_path=calendar_path)
 
 for allocation_id, mov_ave_len in ittl.product(list(raw_portfolio_options) + list(pure_portfolio_options), test_windows):
-    allocation_opt_id = "{}M{:03d}".format(allocation_id, mov_ave_len)
+    src_id = allocation_id
+    dst_id = "{}M{:03d}".format(allocation_id, mov_ave_len)
+    src_dir = signals_allocation_dir
 
-    # --- init allocation lib
-    allocation_lib = CManagerLibReader(
-        t_db_save_dir=signals_allocation_dir, t_db_name=database_structure[allocation_id].m_lib_name)
-    allocation_lib.set_default(database_structure[allocation_id].m_tab.m_table_name)
+    # --- init src lib
+    src_lib = CManagerLibReader(
+        t_db_save_dir=src_dir, t_db_name=database_structure[src_id].m_lib_name)
+    src_lib.set_default(database_structure[src_id].m_tab.m_table_name)
 
     # --- init allocation opt lib
-    allocation_opt_lib = CManagerLibWriterByDate(
-        t_db_save_dir=signals_opt_dir, t_db_name=database_structure[allocation_opt_id].m_lib_name)
-    allocation_opt_lib.initialize_table(database_structure[allocation_opt_id].m_tab, t_remove_existence=run_mode in ["O"])
+    dst_opt_lib = CManagerLibWriterByDate(
+        t_db_save_dir=signals_opt_dir, t_db_name=database_structure[dst_id].m_lib_name)
+    dst_opt_lib.initialize_table(database_structure[dst_id].m_tab, t_remove_existence=run_mode in ["O"])
 
     # --- main
     signal_queue = []
     for trade_date in cne_calendar.get_iter_list(t_bgn_date=ahead_bgn_date, t_stp_date=stp_date, t_ascending=True):
-        signal_df = allocation_lib.read_by_date(t_trade_date=trade_date, t_value_columns=["instrument", "value"]).set_index("instrument")
+        signal_df = src_lib.read_by_date(t_trade_date=trade_date, t_value_columns=["instrument", "value"]).set_index("instrument")
         if len(signal_df) > 0:
             signal_srs = signal_df["value"]
             signal_srs.name = trade_date
@@ -62,13 +64,13 @@ for allocation_id, mov_ave_len in ittl.product(list(raw_portfolio_options) + lis
 
             # save
             if trade_date >= bgn_date:
-                allocation_opt_lib.update_by_date(
+                dst_opt_lib.update_by_date(
                     t_date=trade_date,
                     t_update_df=opt_df[["value"]],
                     t_using_index=True
                 )
 
-    allocation_lib.close()
-    allocation_opt_lib.close()
+    src_lib.close()
+    dst_opt_lib.close()
 
-    print("... {} MOV_AVE = {:>2d} optimized @ {}".format(allocation_opt_id, mov_ave_len, dt.datetime.now()))
+    print("... {} MOV_AVE = {:>2d} optimized @ {}".format(dst_id, mov_ave_len, dt.datetime.now()))

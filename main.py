@@ -29,6 +29,7 @@ from signals.signals_pure_factors_VANILLA import cal_signals_vanilla_mp
 from signals.signals_pure_factors_MA import cal_signals_ma_mp
 from signals.signals_portfolio_allocation_raw import cal_signals_raw_mp
 from signals.signals_portfolio_allocation_pure import cal_signals_pure_mp
+from signals.signals_opt_mov_ave import cal_signals_opt_raw_and_pure_mp, cal_signals_opt_vanilla_mp, cal_signals_opt_ma_mp
 
 from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_instru_dir, fundamental_by_instru_dir, \
     instruments_return_dir, available_universe_dir, \
@@ -42,7 +43,8 @@ from config_factor import concerned_instruments_universe, sector_classification,
     available_universe_options, test_windows, factors_args, factors, neutral_method, \
     factors_pool_options, factors_return_lags
 from config_portfolio import available_factors, timing_factors, \
-    pid, factors_return_lag, fast_n_slow_n_comb, raw_portfolio_options, pure_portfolio_options
+    pid, factors_return_lag, fast_n_slow_n_comb, raw_portfolio_options, pure_portfolio_options, \
+    minimum_abs_weight
 from struct_lib_portfolio import database_structure
 
 if __name__ == "__main__":
@@ -71,6 +73,12 @@ if __name__ == "__main__":
             "factors/return": "20140101", 
             "signals/VANILLA": "20140101", 
             "signals/MA": "20140101", 
+            "signals/allocation_raw": "20140101", 
+            "signals/allocation_pure": "20140101",
+            
+            "signals/opt_raw_pure": "20140301", 
+            "signals/opt_vanilla": "20140301", 
+            "signals/opt_ma": "20140301", 
         }
         """)
     args_parser.add_argument("-s", "--stp", type=str, help="""
@@ -389,6 +397,43 @@ if __name__ == "__main__":
             run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
             signals_dir=signals_dir,
             signals_allocation_dir=signals_allocation_dir,
+            calendar_path=calendar_path,
+            database_structure=database_structure,
+        )
+    elif switch in ["OPT"]:
+        cal_signals_opt_raw_and_pure_mp(
+            proc_num=proc_num,
+            portfolio_ids=list(raw_portfolio_options) + list(pure_portfolio_options),
+            mov_ave_lens=test_windows,
+            run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+            minimum_abs_weight=minimum_abs_weight,
+            src_dir=signals_allocation_dir,
+            signals_opt_dir=signals_opt_dir,
+            calendar_path=calendar_path,
+            database_structure=database_structure,
+        )
+    elif switch in ["OPTV"]:
+        cal_signals_opt_vanilla_mp(
+            proc_num=proc_num,
+            factors=available_factors,
+            mov_ave_lens=test_windows,
+            run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+            minimum_abs_weight=minimum_abs_weight,
+            src_dir=signals_dir,
+            signals_opt_dir=signals_opt_dir,
+            calendar_path=calendar_path,
+            database_structure=database_structure,
+        )
+    elif switch in ["OPTM"]:
+        cal_signals_opt_ma_mp(
+            proc_num=proc_num,
+            factors=available_factors,
+            mov_ave_lens=test_windows,
+            fast_n_slow_n_comb=fast_n_slow_n_comb,
+            run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+            minimum_abs_weight=minimum_abs_weight,
+            src_dir=signals_dir,
+            signals_opt_dir=signals_opt_dir,
             calendar_path=calendar_path,
             database_structure=database_structure,
         )
