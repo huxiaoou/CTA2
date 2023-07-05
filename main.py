@@ -31,6 +31,7 @@ from signals.signals_portfolio_allocation_raw import cal_signals_raw_mp
 from signals.signals_portfolio_allocation_pure import cal_signals_pure_mp
 from signals.signals_opt_mov_ave import cal_signals_opt_raw_and_pure_mp, cal_signals_opt_vanilla_mp, cal_signals_opt_ma_mp
 from ic_tests.ic_tests_factors import cal_ic_tests_mp
+from ic_tests.ic_tests_factors_neutral import cal_ic_tests_neutral_mp
 
 from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_instru_dir, fundamental_by_instru_dir, \
     instruments_return_dir, available_universe_dir, \
@@ -449,8 +450,20 @@ if __name__ == "__main__":
             run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
             ic_tests_dir=ic_tests_dir,
             available_universe_dir=available_universe_dir,
-            factors_exposure_dir=factors_exposure_dir,
-            test_return_dir=test_return_dir,
+            exposure_dir=factors_exposure_dir,
+            return_dir=test_return_dir,
+            calendar_path=calendar_path,
+            database_structure=database_structure,
+        )
+    elif switch in ["ICN"]:
+        cal_ic_tests_neutral_mp(
+            proc_num=proc_num,
+            factors=factors, neutral_methods=[neutral_method], test_windows=test_windows,
+            run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+            ic_tests_dir=ic_tests_dir,
+            available_universe_dir=available_universe_dir,
+            exposure_dir=factors_exposure_neutral_dir,
+            return_dir=test_return_neutral_dir,
             calendar_path=calendar_path,
             database_structure=database_structure,
         )

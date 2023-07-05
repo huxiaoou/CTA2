@@ -2,34 +2,27 @@ import os
 import itertools
 import datetime as dt
 import multiprocessing as mp
-import numpy as np
 import pandas as pd
 from skyrim.whiterun import CCalendar
 from skyrim.falkreath import CLib1Tab1, CManagerLibReader, CManagerLibWriter
 from skyrim.winterhold import check_and_mkdir
+from ic_tests.ic_tests_shared import corr_one_day
 
 
-def corr_one_day(df: pd.DataFrame, x: str, y: str, method: str):
-    if len(df) > 2:
-        res = df[[x, y]].corr(method=method).at[x, y]
-    else:
-        res = 0
-    return 0 if np.isnan(res) else res
-
-
-def ic_test_single_factor(factor: str, test_window: int,
-                          run_mode: str, bgn_date: str, stp_date: str,
-                          ic_tests_dir: str,
-                          available_universe_dir: str,
-                          factors_exposure_dir: str,
-                          test_return_dir: str,
-                          calendar_path: str,
-                          database_structure: dict[str, CLib1Tab1],
-                          ):
+def ic_test_single_factor(
+        factor: str, test_window: int,
+        run_mode: str, bgn_date: str, stp_date: str,
+        ic_tests_dir: str,
+        available_universe_dir: str,
+        exposure_dir: str,
+        return_dir: str,
+        calendar_path: str,
+        database_structure: dict[str, CLib1Tab1],
+):
     __test_lag = 1
 
     # --- directory check
-    check_and_mkdir(os.path.join(ic_tests_dir, factor))
+    check_and_mkdir(dst_dir := os.path.join(ic_tests_dir, factor))
 
     # --- set dates
     if stp_date is None:
@@ -53,7 +46,7 @@ def ic_test_single_factor(factor: str, test_window: int,
 
     # --- factor library
     factor_lib_structure = database_structure[factor]
-    factor_lib = CManagerLibReader(t_db_name=factor_lib_structure.m_lib_name, t_db_save_dir=factors_exposure_dir)
+    factor_lib = CManagerLibReader(t_db_name=factor_lib_structure.m_lib_name, t_db_save_dir=exposure_dir)
     factor_lib.set_default(factor_lib_structure.m_tab.m_table_name)
     factor_df = factor_lib.read_by_conditions(t_conditions=[
         ("trade_date", ">=", base_bgn_date),
@@ -64,7 +57,7 @@ def ic_test_single_factor(factor: str, test_window: int,
     # --- test return library
     test_return_lib_id = "test_return_{:03d}".format(test_window)
     test_return_lib_structure = database_structure[test_return_lib_id]
-    test_return_lib = CManagerLibReader(t_db_name=test_return_lib_structure.m_lib_name, t_db_save_dir=test_return_dir)
+    test_return_lib = CManagerLibReader(t_db_name=test_return_lib_structure.m_lib_name, t_db_save_dir=return_dir)
     test_return_lib.set_default(test_return_lib_structure.m_tab.m_table_name)
     test_return_df = test_return_lib.read_by_conditions(t_conditions=[
         ("trade_date", ">=", bgn_date),
@@ -89,7 +82,7 @@ def ic_test_single_factor(factor: str, test_window: int,
     update_df = pd.DataFrame({"value": res_srs})
     ic_test_lib_id = f"ic-{factor}-TW{test_window:03d}"
     ic_test_lib_structure = database_structure[ic_test_lib_id]
-    ic_test_lib = CManagerLibWriter(t_db_name=ic_test_lib_structure.m_lib_name, t_db_save_dir=ic_tests_dir)
+    ic_test_lib = CManagerLibWriter(t_db_name=ic_test_lib_structure.m_lib_name, t_db_save_dir=dst_dir)
     ic_test_lib.initialize_table(t_table=ic_test_lib_structure.m_tab, t_remove_existence=run_mode in ["O"])
     ic_test_lib.update(t_update_df=update_df, t_using_index=True)
     ic_test_lib.close()
