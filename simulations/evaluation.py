@@ -1,15 +1,21 @@
 import os
+import datetime as dt
 import pandas as pd
+import multiprocessing as mp
 from skyrim.riften import CNAV
 from skyrim.winterhold import plot_lines
 from skyrim.whiterun import df_to_md_files
 
 
-def evaluation_single_factor(
-        factor_lbl: str,
+def evaluation_signal(
+        signal_id: str,
         hold_period_n_list: list,
-        test_bgn_date: str, test_stp_date: str, risk_free_rate: float,
-        src_simulations_dir: str, dst_evaluations_dir: str, top_n: int = 5
+        bgn_date: str, stp_date: str,
+        risk_free_rate: float,
+        src_simulations_dir: str,
+        dst_evaluations_dir: str,
+        top_n: int,
+        verbose: bool,
 ):
     pd.set_option("display.width", 0)
 
@@ -19,7 +25,6 @@ def evaluation_single_factor(
 
     aver_nav_summary_data = []
     for hold_period_n in hold_period_n_list:
-        signal_id = factor_lbl
         comb_id = "{}.HPN{:03d}".format(signal_id, hold_period_n)
 
         # for each delay in hold period n
@@ -33,7 +38,7 @@ def evaluation_single_factor(
 
         # average nav for all the delay
         nav_df = pd.DataFrame(nav_data).fillna(1)
-        filter_date = (nav_df.index >= test_bgn_date) & (nav_df.index < test_stp_date)
+        filter_date = (nav_df.index >= bgn_date) & (nav_df.index < stp_date)
         nav_df = nav_df.loc[filter_date]
         nav_df["AVER"] = nav_df[port_id_list].mean(axis=1)
         nav_file = "nav.{}.csv.gz".format(comb_id)
@@ -58,7 +63,7 @@ def evaluation_single_factor(
         )
 
     aver_nav_summary_df = pd.DataFrame(aver_nav_summary_data).sort_values(by=index_cols, ascending=True).set_index(index_cols)
-    aver_nav_summary_file = "summary.{}.aver.csv".format(factor_lbl)
+    aver_nav_summary_file = "summary.{}.aver.csv".format(signal_id)
     aver_nav_summary_path = os.path.join(dst_evaluations_dir, aver_nav_summary_file)
     aver_nav_summary_df.to_csv(aver_nav_summary_path, float_format="%.2f")
     aver_nav_summary_df[latex_cols].to_csv(aver_nav_summary_path.replace(".csv", ".latex.csv"), float_format="%.2f")
@@ -67,18 +72,17 @@ def evaluation_single_factor(
     aver_nav_summary_df["夏普比率"] = aver_nav_summary_df["夏普比率"].astype(float)
 
     # plot top n
-    # for evaluation_idx in ["年化收益", "夏普比率"]:
     for evaluation_idx in ["夏普比率"]:
         # load summary
         sorted_summary_df = aver_nav_summary_df.sort_values(by=evaluation_idx, ascending=False).head(top_n)
-        sorted_summary_file = "summary.{}.aver.top{:02d}.{}.csv".format(factor_lbl, top_n, evaluation_idx)
+        sorted_summary_file = "summary.{}.aver.top{:02d}.{}.csv".format(signal_id, top_n, evaluation_idx)
         sorted_summary_path = os.path.join(dst_evaluations_dir, sorted_summary_file)
         sorted_summary_df.to_csv(sorted_summary_path, float_format="%.2f")
 
         # load nav data
         top_nav_data = {}
         for hold_period_n in sorted_summary_df.index:
-            signal_id = factor_lbl
+            signal_id = signal_id
             comb_id = "{}.HPN{:03d}".format(signal_id, hold_period_n)
             nav_file = "nav.{}.csv.gz".format(comb_id)
             nav_path = os.path.join(dst_evaluations_dir, "by_comb_id", nav_file)
@@ -88,13 +92,26 @@ def evaluation_single_factor(
         plot_lines(
             t_plot_df=top_nav_df,
             t_vlines_index=["20230306"],
-            t_fig_name="nav.{}.aver.top{:02d}.{}".format(factor_lbl, top_n, evaluation_idx),
+            t_fig_name="nav.{}.aver.top{:02d}.{}".format(signal_id, top_n, evaluation_idx),
             t_save_dir=dst_evaluations_dir)
 
-        print("=" * 120)
-        print(evaluation_idx + "-" + factor_lbl)
-        print("-" * 120)
-        print(sorted_summary_df)
-        print("=" * 120)
-        print("\n")
+        if verbose:
+            print("=" * 120)
+            print(evaluation_idx + "-" + signal_id)
+            print("-" * 120)
+            print(sorted_summary_df)
+            print("=" * 120)
+            print("\n")
+    return 0
+
+
+def cal_evaluation_signals_mp(proc_num: int, signal_ids: list[str], **kwargs):
+    t0 = dt.datetime.now()
+    pool = mp.Pool(processes=proc_num)
+    for signal_id in signal_ids:
+        pool.apply_async(evaluation_signal, args=(signal_id,), kwds=kwargs)
+    pool.close()
+    pool.join()
+    t1 = dt.datetime.now()
+    print("... total time consuming: {:.2f} seconds".format((t1 - t0).total_seconds()))
     return 0

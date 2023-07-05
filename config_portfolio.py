@@ -1,3 +1,4 @@
+import itertools as ittl
 from config_factor import test_windows
 from config_factor import sectors, sector_classification
 from config_factor import factors_pool_options, factors
@@ -14,7 +15,6 @@ minimum_abs_weight = 0.001
 # Local
 pid = "P3"
 factors_return_lag = 0  # the core difference between "Project_2022_11_Commodity_Factors_Return_Analysis_V4B"
-
 selected_sectors = [z for z in sectors if z in set(sector_classification[i] for i in concerned_instruments_universe)]
 selected_factors = factors_pool_options[pid]
 available_factors = ["MARKET"] + selected_sectors + selected_factors
@@ -205,9 +205,18 @@ raw_portfolio_options = {
     },
 }
 
+test_signals = {
+    "vanilla": ["{}VM{:03d}".format(factor_lbl, mov_ave_len)
+                for factor_lbl, mov_ave_len in ittl.product(available_factors, test_windows)],
+    "ma": ["{}F{:03d}S{:03d}M{:03d}".format(factor_lbl, fn, sn, mov_ave_len)
+           for factor_lbl, mov_ave_len, (fn, sn) in
+           ittl.product(timing_factors, test_windows, fast_n_slow_n_comb)],
+    "allocation": ["{}M{:03d}".format(aid, tw) for aid, tw in ittl.product(
+        list(raw_portfolio_options) + list(pure_portfolio_options), test_windows)]
+}
+
 if __name__ == "__main__":
     import pandas as pd
-
     print("Total number of factors = {}".format(len(factors)))  # 103
     print("\n".join(factors))
     print(selected_sectors)

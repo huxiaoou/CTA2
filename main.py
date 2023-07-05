@@ -38,6 +38,9 @@ from ic_tests.ic_tests_summary_neutral import cal_ic_tests_neutral_summary_mp
 from ic_tests.ic_tests_summary_delinear import cal_ic_tests_delinear_summary_mp
 from ic_tests.ic_tests_comparison import cal_ic_tests_comparison
 from ic_tests.factors_exposure_corr import cal_factors_exposure_corr
+from simulations.simulation import cal_simulations_mp
+from simulations.evaluation import cal_evaluation_signals_mp
+from simulations.evaluation_by_year import evaluate_signal_by_year, plot_signals_nav_by_year
 
 from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_instru_dir, fundamental_by_instru_dir, \
     instruments_return_dir, available_universe_dir, \
@@ -47,13 +50,16 @@ from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_
     factors_return_dir, factors_portfolio_dir, instruments_residual_dir, \
     signals_dir, signals_allocation_dir, signals_opt_dir, \
     ic_tests_dir, ic_tests_delinear_dir, factors_exposure_corr_dir, \
-    calendar_path
+    simulations_opt_dir, evaluations_opt_dir, by_year_dir, \
+    calendar_path, instrument_info_path
 from config_factor import concerned_instruments_universe, sector_classification, sectors, \
     available_universe_options, test_windows, factors_args, factors, neutral_method, \
     factors_pool_options, factors_return_lags
 from config_portfolio import available_factors, timing_factors, \
     pid, factors_return_lag, fast_n_slow_n_comb, raw_portfolio_options, pure_portfolio_options, \
-    minimum_abs_weight
+    minimum_abs_weight, test_signals, \
+    selected_sectors, selected_factors, \
+    cost_rate, cost_reservation, init_premium, risk_free_rate
 from struct_lib_portfolio import database_structure
 
 if __name__ == "__main__":
@@ -93,6 +99,8 @@ if __name__ == "__main__":
             "ic_tests/neutral": "20140101",
             "ic_tests/delinear": "20140101",
             "ic_tests/fecor": "20140101",
+            
+            "simulation": "20140701",
         }
         """)
     args_parser.add_argument("-s", "--stp", type=str, help="""
@@ -107,13 +115,19 @@ if __name__ == "__main__":
         use this to decide which factor, available options = {
         ''}
         """)
+    args_parser.add_argument("-t", "--type", type=str, choices=("v", "m", "a"), help="""
+        v = portfolios with signals derived from vanilla pure factors
+        m = portfolios with signals derived from pure factors with timing, methods = moving average
+        a = allocations, both raw and pure
+    """)
 
     args = args_parser.parse_args()
     switch = args.switch.upper()
-    run_mode = None if switch in ["IR", "MR", "ICS", "ICNS", "ICDS", "ICC", "FECOR"] else args.mode.upper()
+    run_mode = None if switch in ["IR", "MR", "ICS", "ICNS", "ICDS", "ICC", "FECOR", "SIMU", "EVAL", "BY"] else args.mode.upper()
     bgn_date, stp_date = args.bgn, args.stp
     proc_num = args.process
     factor = args.factor.upper() if switch in ["FE"] else None
+    signals_type = args.type.upper() if switch in ["SIMU", "EVAL"] else None
 
     if switch in ["IR"]:  # "INSTRUMENT RETURN":
         merge_instru_return(
@@ -526,5 +540,64 @@ if __name__ == "__main__":
             calendar_path=calendar_path,
             database_structure=database_structure,
         )
+    elif switch in ["SIMU"]:
+        if signals_type == "V":
+            signal_ids = test_signals["vanilla"]
+        elif signals_type == "M":
+            signal_ids = test_signals["ma"]
+        elif signals_type == "A":
+            signal_ids = test_signals["allocation"]
+        else:
+            signal_ids = []
+        cal_simulations_mp(
+            proc_num=proc_num,
+            signal_ids=signal_ids, test_windows=[1],
+            calendar_path=calendar_path, instrument_info_path=instrument_info_path,
+            md_by_instru_dir=md_by_instru_dir, major_minor_dir=major_minor_dir,
+            available_universe_dir=available_universe_dir,
+            sig_dir=signals_opt_dir, dst_dir=simulations_opt_dir,
+            database_structure=database_structure,
+            test_universe=concerned_instruments_universe, test_bgn_date=bgn_date, test_stp_date=stp_date,
+            cost_reservation=cost_reservation, cost_rate=cost_rate, init_premium=init_premium,
+            skip_if_exist=False
+        )
+    elif switch in ["EVAL"]:
+        if signals_type == "V":
+            signal_ids = test_signals["vanilla"]
+        elif signals_type == "M":
+            signal_ids = test_signals["ma"]
+        elif signals_type == "A":
+            signal_ids = test_signals["allocation"]
+        else:
+            signal_ids = []
+        cal_evaluation_signals_mp(
+            proc_num=proc_num,
+            signal_ids=signal_ids,
+            hold_period_n_list=[1], bgn_date=bgn_date, stp_date=stp_date,
+            risk_free_rate=risk_free_rate,
+            src_simulations_dir=simulations_opt_dir,
+            dst_evaluations_dir=evaluations_opt_dir,
+            top_n=5, verbose=False,
+        )
+    elif switch in ["BY"]:
+        evaluate_signal_by_year("R1M010", 1, risk_free_rate, evaluations_opt_dir, by_year_dir)
+        evaluate_signal_by_year("R4M010", 1, risk_free_rate, evaluations_opt_dir, by_year_dir)
+        evaluate_signal_by_year("A1M020", 1, risk_free_rate, evaluations_opt_dir, by_year_dir)
+        evaluate_signal_by_year("A6M005", 1, risk_free_rate, evaluations_opt_dir, by_year_dir)
+        evaluate_signal_by_year("A3M020", 1, risk_free_rate, evaluations_opt_dir, by_year_dir)
+        evaluate_signal_by_year("A8M005", 1, risk_free_rate, evaluations_opt_dir, by_year_dir)
+        tracking_sigal_ids = [
+            "R1M010",
+            "R4M010",
+            "A1M020",
+            "A6M005",
+            "A3M020",
+            "A8M005",
+        ]
+        plot_signals_nav_by_year("comb", [(z, 1) for z in tracking_sigal_ids], evaluations_opt_dir, by_year_dir)
+        plot_signals_nav_by_year("comb_sector_VM005", [(z + "VM005", 1) for z in ["MARKET"] + selected_sectors], evaluations_opt_dir, by_year_dir)
+        plot_signals_nav_by_year("comb_sector_VM020", [(z + "VM020", 1) for z in ["MARKET"] + selected_sectors], evaluations_opt_dir, by_year_dir)
+        plot_signals_nav_by_year("comb_style_VM005", [(z + "VM005", 1) for z in selected_factors], evaluations_opt_dir, by_year_dir)
+        plot_signals_nav_by_year("comb_style_VM020", [(z + "VM020", 1) for z in selected_factors], evaluations_opt_dir, by_year_dir)
     else:
         print(f"... switch = {switch} is not a legal option, please check again.")

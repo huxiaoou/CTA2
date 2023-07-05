@@ -1,23 +1,23 @@
 import os
 import datetime as dt
-from typing import List
+import itertools as ittl
+import multiprocessing as mp
 from skyrim.whiterun import CCalendar, CInstrumentInfoTable
 from skyrim.riverwood2 import CManagerMarketData, CManagerSignalOpt, CPortfolio
 from skyrim.winterhold import remove_files_in_the_dir, check_and_mkdir
 
 
 def simulation_single_factor(
-        factor_lbl: str, hold_period_n: int, start_delay: int,
+        signal_id: str, hold_period_n: int, start_delay: int,
         calendar_path, instrument_info_path,
         md_by_instru_dir, major_minor_dir, available_universe_dir,
         sig_dir, dst_dir,
         database_structure,
-        test_universe: List[str], test_bgn_date: str, test_stp_date: str,
+        test_universe: list[str], test_bgn_date: str, test_stp_date: str,
         cost_reservation: float, cost_rate: float, init_premium: float,
         skip_if_exist: bool
 ):
     # --- pid
-    signal_id = factor_lbl
     port_id = "{}.HPN{:03d}.D{:02d}".format(signal_id, hold_period_n, start_delay)
     nav_file = "{}.nav.daily.csv.gz".format(port_id)
     nav_path = os.path.join(dst_dir, port_id, nav_file)
@@ -67,4 +67,20 @@ def simulation_single_factor(
     # --- end tips
     t1 = dt.datetime.now()
     print("| {} | {:>60s} | calculated  ... | time consuming = {:>6.2f} seconds |".format(t1, port_id, (t1 - t0).total_seconds()))
+    return 0
+
+
+def cal_simulations_mp(
+        proc_num: int,
+        signal_ids: list[str], test_windows: list[int],
+        **kwargs):
+    t0 = dt.datetime.now()
+    pool = mp.Pool(processes=proc_num)
+    for signal_id, test_window in ittl.product(signal_ids, test_windows):
+        for start_delay in range(test_window):
+            pool.apply_async(simulation_single_factor, args=(signal_id, test_window, start_delay), kwds=kwargs)
+    pool.close()
+    pool.join()
+    t1 = dt.datetime.now()
+    print("... total time consuming: {:.2f} seconds".format((t1 - t0).total_seconds()))
     return 0
