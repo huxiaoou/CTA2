@@ -1,21 +1,31 @@
+import itertools
 import os
 import datetime as dt
+import multiprocessing as mp
 import numpy as np
 import pandas as pd
+from skyrim.falkreath import CLib1Tab1, CManagerLibReader
 from skyrim.winterhold import plot_lines
 
 
-def ic_test_plot_single_factor_neutral(factor_lbl: str, neutral_method: str, test_window_list: list,
-                                       test_ic_dir: str, days_per_year: int = 252):
-    print("... begin to plot cum ic for {1}.{2} @ {0}".format(dt.datetime.now(), factor_lbl, neutral_method))
-
+def ic_tests_summary_neutral(
+        factor: str, neutral_method: str,
+        test_windows: list[int],
+        ic_tests_dir: str,
+        database_structure: dict[str, CLib1Tab1],
+        days_per_year: int = 252):
     ic_cumsum_data = {}
     statistics_data = []
-    for test_window in test_window_list:
-        test_id = "{}.{}.TW{:03d}".format(factor_lbl, neutral_method, test_window)
-        ic_file = "ic.{}.csv.gz".format(test_id)
-        ic_path = os.path.join(test_ic_dir, factor_lbl, ic_file)
-        ic_df = pd.read_csv(ic_path, dtype={"trade_date": str}).set_index("trade_date")
+    for test_window in test_windows:
+        test_id = f"{factor}-{neutral_method}-TW{test_window:03d}"
+        ic_test_lib_id = f"ic-{test_id}"
+        ic_test_lib_structure = database_structure[ic_test_lib_id]
+        ic_test_lib = CManagerLibReader(t_db_name=ic_test_lib_structure.m_lib_name, t_db_save_dir=os.path.join(ic_tests_dir, factor))
+        ic_test_lib.set_default(ic_test_lib_structure.m_tab.m_table_name)
+        ic_df = ic_test_lib.read(t_value_columns=["trade_date", "value"]).set_index("trade_date")
+        ic_df.rename(mapper={"value": "ic"}, axis=1, inplace=True)
+        ic_df["cum_ic"] = ic_df["ic"].cumsum()
+        ic_test_lib.close()
         ic_cumsum_data[test_id] = ic_df["cum_ic"]
 
         # get statistic summary
@@ -29,7 +39,7 @@ def ic_test_plot_single_factor_neutral(factor_lbl: str, neutral_method: str, tes
         ic_q075 = np.percentile(ic_df["ic"], q=75)
         ic_q100 = np.percentile(ic_df["ic"], q=100)
         statistics_data.append({
-            "factor": factor_lbl,
+            "factor": factor,
             "testWindow": test_window,
             "obs": obs,
             "IC-Mean": mu,
@@ -42,19 +52,32 @@ def ic_test_plot_single_factor_neutral(factor_lbl: str, neutral_method: str, tes
             "q100": ic_q100,
         })
 
-    if len(ic_cumsum_data) > 0:
-        ic_cumsum_df = pd.DataFrame(ic_cumsum_data)
-        # print(ic_cumsum_df)
-        plot_lines(
-            t_plot_df=ic_cumsum_df,
-            t_fig_name="ic_cumsum.{}.{}".format(factor_lbl, neutral_method),
-            t_save_dir=os.path.join(test_ic_dir, factor_lbl),
-            t_colormap="jet"
-        )
+    ic_cumsum_df = pd.DataFrame(ic_cumsum_data)
+    plot_lines(
+        t_plot_df=ic_cumsum_df,
+        t_fig_name="ic_cumsum.{}.{}".format(factor, neutral_method),
+        t_save_dir=os.path.join(ic_tests_dir, factor),
+        t_colormap="jet"
+    )
 
     statistics_df = pd.DataFrame(statistics_data)
-    statistics_file = "statistics.{}.{}.csv".format(factor_lbl, neutral_method)
-    statistics_path = os.path.join(test_ic_dir, factor_lbl, statistics_file)
+    statistics_file = "statistics.{}.{}.csv".format(factor, neutral_method)
+    statistics_path = os.path.join(ic_tests_dir, factor, statistics_file)
     statistics_df.to_csv(statistics_path, index=False, float_format="%.4f")
-
     print(statistics_df)
+    return 0
+
+
+def cal_ic_tests_neutral_summary_mp(
+        proc_num: int,
+        factors: list[str], neutral_methods: list[str],
+        **kwargs):
+    t0 = dt.datetime.now()
+    pool = mp.Pool(processes=proc_num)
+    for factor, neutral_method in itertools.product(factors, neutral_methods):
+        pool.apply_async(ic_tests_summary_neutral, args=(factor, neutral_method), kwds=kwargs)
+    pool.close()
+    pool.join()
+    t1 = dt.datetime.now()
+    print("... total time consuming: {:.2f} seconds".format((t1 - t0).total_seconds()))
+    return 0

@@ -33,6 +33,8 @@ from signals.signals_opt_mov_ave import cal_signals_opt_raw_and_pure_mp, cal_sig
 from ic_tests.ic_tests_factors import cal_ic_tests_mp
 from ic_tests.ic_tests_factors_neutral import cal_ic_tests_neutral_mp
 from ic_tests.ic_tests_factors_delinear import cal_ic_tests_delinear_mp
+from ic_tests.ic_tests_summary import cal_ic_tests_summary_mp
+from ic_tests.ic_tests_summary_neutral import cal_ic_tests_neutral_summary_mp
 from ic_tests.ic_tests_summary_delinear import cal_ic_tests_delinear_summary_mp
 
 from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_instru_dir, fundamental_by_instru_dir, \
@@ -105,7 +107,7 @@ if __name__ == "__main__":
 
     args = args_parser.parse_args()
     switch = args.switch.upper()
-    run_mode = None if switch in ["IR", "MR", "ICDS"] else args.mode.upper()
+    run_mode = None if switch in ["IR", "MR", "ICS", "ICNS", "ICDS"] else args.mode.upper()
     bgn_date, stp_date = args.bgn, args.stp
     proc_num = args.process
     factor = args.factor.upper() if switch in ["FE"] else None
@@ -480,6 +482,20 @@ if __name__ == "__main__":
             exposure_dir=factors_exposure_delinear_dir,
             return_dir=test_return_neutral_dir,
             calendar_path=calendar_path,
+            database_structure=database_structure,
+        )
+    elif switch in ["ICS"]:
+        cal_ic_tests_summary_mp(
+            proc_num=proc_num, factors=factors,
+            test_windows=test_windows,
+            ic_tests_dir=ic_tests_dir,
+            database_structure=database_structure,
+        )
+    elif switch in ["ICNS"]:
+        cal_ic_tests_neutral_summary_mp(
+            proc_num=proc_num, factors=factors, neutral_methods=[neutral_method],
+            test_windows=test_windows,
+            ic_tests_dir=ic_tests_dir,
             database_structure=database_structure,
         )
     elif switch in ["ICDS"]:
