@@ -30,6 +30,7 @@ from signals.signals_pure_factors_MA import cal_signals_ma_mp
 from signals.signals_portfolio_allocation_raw import cal_signals_raw_mp
 from signals.signals_portfolio_allocation_pure import cal_signals_pure_mp
 from signals.signals_opt_mov_ave import cal_signals_opt_raw_and_pure_mp, cal_signals_opt_vanilla_mp, cal_signals_opt_ma_mp
+from ic_tests.ic_tests_factors import cal_ic_tests_mp
 
 from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_instru_dir, fundamental_by_instru_dir, \
     instruments_return_dir, available_universe_dir, \
@@ -38,6 +39,7 @@ from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_
     factors_exposure_norm_dir, factors_exposure_delinear_dir, \
     factors_return_dir, factors_portfolio_dir, instruments_residual_dir, \
     signals_dir, signals_allocation_dir, signals_opt_dir, \
+    ic_tests_dir, \
     calendar_path
 from config_factor import concerned_instruments_universe, sector_classification, sectors, \
     available_universe_options, test_windows, factors_args, factors, neutral_method, \
@@ -79,6 +81,9 @@ if __name__ == "__main__":
             "signals/opt_raw_pure": "20140301", 
             "signals/opt_vanilla": "20140301", 
             "signals/opt_ma": "20140301", 
+            
+            "ic_tests": "20140101",
+            "ic_tests_neutral": "20140101",
         }
         """)
     args_parser.add_argument("-s", "--stp", type=str, help="""
@@ -434,6 +439,18 @@ if __name__ == "__main__":
             minimum_abs_weight=minimum_abs_weight,
             src_dir=signals_dir,
             signals_opt_dir=signals_opt_dir,
+            calendar_path=calendar_path,
+            database_structure=database_structure,
+        )
+    elif switch in ["IC"]:
+        cal_ic_tests_mp(
+            proc_num=proc_num,
+            factors=factors, test_windows=test_windows,
+            run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+            ic_tests_dir=ic_tests_dir,
+            available_universe_dir=available_universe_dir,
+            factors_exposure_dir=factors_exposure_dir,
+            test_return_dir=test_return_dir,
             calendar_path=calendar_path,
             database_structure=database_structure,
         )

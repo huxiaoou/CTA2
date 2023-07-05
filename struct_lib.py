@@ -1,7 +1,7 @@
 import itertools as ittl
 from skyrim.falkreath import CLib1Tab1, CTable, Dict
 from config_factor import factors_pool_options, sector_classification, concerned_instruments_universe
-from config_factor import test_windows, factors_return_lags, factors, factors_neutral, sectors
+from config_factor import test_windows, factors_return_lags, factors, factors_neutral, neutral_method, sectors
 
 # --- DATABASE STRUCTURE
 # available universe structure
@@ -144,18 +144,26 @@ for z in factors_portfolio_list:
             })
         )})
 
-# IV lib
-iv_list = ["IV{}WSTW{:03d}T{}".format(p, tw, l)
-           for p, tw, l in ittl.product(factors_pool_options.keys(), test_windows, factors_return_lags)]
+# ic tests
 database_structure.update({
     z: CLib1Tab1(
         t_lib_name=z + ".db",
         t_tab=CTable({
-            "table_name": z,
-            "primary_keys": {"trade_date": "TEXT", "instrument": "TEXT"},
+            "table_name": "ic_test",
+            "primary_keys": {"trade_date": "TEXT"},
             "value_columns": {"value": "REAL"},
         })
-    ) for z in iv_list})
+    ) for z in [f"ic-{f}-TW{tw:03d}" for f, tw in ittl.product(factors, test_windows)]})
+
+database_structure.update({
+    z: CLib1Tab1(
+        t_lib_name=z + ".db",
+        t_tab=CTable({
+            "table_name": "ic_test",
+            "primary_keys": {"trade_date": "TEXT"},
+            "value_columns": {"value": "REAL"},
+        })
+    ) for z in [f"ic-{f}-{nm}-TW{tw:03d}" for f, nm, tw in ittl.product(factors, [neutral_method], test_windows)]})
 
 if __name__ == "__main__":
     print(norm_factors_pool_list)
