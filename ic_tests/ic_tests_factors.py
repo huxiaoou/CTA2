@@ -9,7 +9,7 @@ from skyrim.winterhold import check_and_mkdir
 from ic_tests.ic_tests_shared import corr_one_day
 
 
-def ic_test_single_factor(
+def ic_test(
         factor: str, test_window: int,
         run_mode: str, bgn_date: str, stp_date: str,
         ic_tests_dir: str,
@@ -96,7 +96,7 @@ def cal_ic_tests_mp(
     t0 = dt.datetime.now()
     pool = mp.Pool(processes=proc_num)
     for factor, test_window in itertools.product(factors, test_windows):
-        pool.apply_async(ic_test_single_factor, args=(factor, test_window), kwds=kwargs)
+        pool.apply_async(ic_test, args=(factor, test_window), kwds=kwargs)
     pool.close()
     pool.join()
     t1 = dt.datetime.now()
