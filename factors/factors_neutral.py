@@ -91,7 +91,6 @@ def cal_factors_neutral_mp(
     t0 = dt.datetime.now()
     pool = mp.Pool(processes=proc_num)
     for f in factors:
-        print(f)
         pool.apply_async(neutralize_one_factor, args=(f,), kwds=kwargs)
     pool.close()
     pool.join()

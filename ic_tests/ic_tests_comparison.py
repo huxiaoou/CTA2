@@ -29,7 +29,6 @@ def cal_ic_tests_comparison(factors, neutral_method: str, exception_list: list[s
         )
         summary_dfs_list.append(summary_df)
     tot_summary_df = pd.concat(summary_dfs_list, ignore_index=True, axis=0)
-    print(tot_summary_df)
 
     for test_window, test_window_df in tot_summary_df.groupby(by="testWindow"):
         ic_order_df = test_window_df.sort_values(by="IC-Mean", ascending=False).head(top_n)

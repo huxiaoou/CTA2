@@ -25,6 +25,8 @@ def cal_market_return(instruments_return_dir: str,
             t_value_columns=["instrument", "return", "amount"],
             t_trade_date=trade_date
         )
+        if len(available_universe_df) == 0:
+            continue
 
         available_universe_df["rel_wgt"] = np.sqrt(available_universe_df["amount"])  # = 1 if you want weight of instruments are equal
         available_universe_df["wgt"] = available_universe_df["rel_wgt"] / available_universe_df["rel_wgt"].sum()

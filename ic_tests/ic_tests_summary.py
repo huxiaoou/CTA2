@@ -63,7 +63,6 @@ def ic_tests_summary(
     statistics_file = "statistics.{}.csv".format(factor)
     statistics_path = os.path.join(ic_tests_dir, factor, statistics_file)
     statistics_df.to_csv(statistics_path, index=False, float_format="%.4f")
-    print(statistics_df)
     return 0
 
 
