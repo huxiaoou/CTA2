@@ -29,7 +29,7 @@ from signals.signals_pure_factors_VANILLA import cal_signals_vanilla_mp
 from signals.signals_pure_factors_MA import cal_signals_ma_mp
 from signals.signals_portfolio_allocation_raw import cal_signals_raw_mp
 from signals.signals_portfolio_allocation_pure import cal_signals_pure_mp
-from signals.signals_opt_mov_ave import cal_signals_opt_raw_and_pure_mp, cal_signals_opt_vanilla_mp, cal_signals_opt_ma_mp
+from signals.signals_opt_mov_ave import cal_signals_opt_vanilla_mp, cal_signals_opt_ma_mp, cal_signals_opt_raw_and_pure_mp
 from ic_tests.ic_tests_factors import cal_ic_tests_mp
 from ic_tests.ic_tests_factors_neutral import cal_ic_tests_neutral_mp
 from ic_tests.ic_tests_factors_delinear import cal_ic_tests_delinear_mp
@@ -63,67 +63,102 @@ from config_portfolio import available_factors, timing_factors, \
 from struct_lib_portfolio import database_structure
 
 if __name__ == "__main__":
-    args_parser = argparse.ArgumentParser(description="Entry point of this project")
-    args_parser.add_argument("-w", "--switch", type=str, help="""
-        use this to decide which parts to run, available options = {'ir', 'au', 'mr', 'tr', 'trn'}
-        """)
-    args_parser.add_argument("-m", "--mode", type=str, choices=("o", "a"), help="""
-        run mode, available options = {'o', 'overwrite', 'a', 'append'}
-        """)
-    args_parser.add_argument("-b", "--bgn", type=str, help="""
-        begin date, may be different according to different switches, suggestion of different switch:
-        {   
-            "returns/instrument_return": "20120101",
-            
-            "returns/available_universe": "20120301",
-            "returns/market_return": None,
-            "returns/test_return": "20120301",
-            "returns/test_return_neutral": "20120301",
-            
-            "factors/exposure": "20130101",
-            "factors/exposure_neutral": "20130101",
-            
-            "factors/exposure_norm_and_delinear": "20130201", # some factors with a large window (such as 252) would start at about this time
-            
-            "factors/return": "20140101", 
-            "signals/VANILLA": "20140101", 
-            "signals/MA": "20140101", 
-            "signals/allocation_raw": "20140101", 
-            "signals/allocation_pure": "20140101",
-            
-            "signals/opt_raw_pure": "20140301", 
-            "signals/opt_vanilla": "20140301", 
-            "signals/opt_ma": "20140301", 
-            
-            "ic_tests/": "20140101",
-            "ic_tests/neutral": "20140101",
-            "ic_tests/delinear": "20140101",
-            "ic_tests/fecor": "20140101",
-            
-            "simulation": "20140701",
-        }
-        """)
-    args_parser.add_argument("-s", "--stp", type=str, help="""
-        stop date, not included, usually it would be the day after the last trade date, such as
-        "20230619" if last trade date is "20230616"  
-        """)
-    args_parser.add_argument("-p", "--process", type=int, default=5, help="""
-        number of process to be called when calculating, default = 5
-        """)
-    args_parser.add_argument("-f", "--factor", type=str, default="", help="""
-        optional, must be provided if switch = {'factors_exposure'},
-        use this to decide which factor, available options = {
-        ''}
-        """)
-    args_parser.add_argument("-t", "--type", type=str, choices=("v", "m", "a"), help="""
-        v = portfolios with signals derived from vanilla pure factors
-        m = portfolios with signals derived from pure factors with timing, methods = moving average
-        a = allocations, both raw and pure
+    args_parser = argparse.ArgumentParser(description="Entry point of this project", formatter_class=argparse.RawTextHelpFormatter)
+    args_parser.add_argument("-w", "--switch", type=str,
+                             help="""use this to decide which parts to run, available options = {
+    'ir': instrument return,
+    'au': available universe,
+    'mr': market return,
+    'tr': test return,
+    'trn': test return neutral,
+    'fe': factors exposure,
+    'fen': factors exposure neutral,
+    'dln': norm and delinear,
+    'fr': factor return,
+    'sigv': signal vanilla,
+    'sigm': signal moving average for timing,
+    'sigar': signal allocation raw,
+    'sigap': signal allocation pure,
+    'optv': optimization for signal vanilla,
+    'optm': optimization for signal moving average,
+    'opt': optimization for allocation,
+    'ic': ic-tests,
+    'icn': ic-tests-neutral,
+    'icd': ic-tests-delinear,
+    'ics': ic-tests-summary,
+    'icns': ic-tests-neutral-summary,
+    'icds': ic-tests-delinear-summary,
+    'fecor': factor exposure correlation,
+    'simu': simulation,
+    'eval': evaluation,
+    'by': evaluation by year,
+    }""")
+    args_parser.add_argument("-m", "--mode", type=str, choices=("o", "a"),
+                             help="""run mode, available options = {'o', 'overwrite', 'a', 'append'}""")
+    args_parser.add_argument("-b", "--bgn", type=str,
+                             help="""begin date, may be different according to different switches, suggestion of different switch:
+    {
+        "returns/instrument_return": "20120101",
+        
+        "returns/available_universe": "20120301",
+        "returns/market_return": None,
+        "returns/test_return": "20120301",
+        "returns/test_return_neutral": "20120301",
+        
+        "factors/exposure": "20130101",
+        "factors/exposure_neutral": "20130101",
+        
+        "factors/exposure_norm_and_delinear": "20130201", # some factors with a large window (252) would start at about this time
+        
+        "factors/return": "20140101",
+        "signals/VANILLA": "20140101",
+        "signals/MA": "20140101",
+        "signals/allocation_raw": "20140101",
+        "signals/allocation_pure": "20140101",
+        
+        "signals/opt_raw_pure": "20140301",
+        "signals/opt_vanilla": "20140301",
+        "signals/opt_ma": "20140301",
+        
+        "ic_tests/": "20140101",
+        "ic_tests/neutral": "20140101",
+        "ic_tests/delinear": "20140101",
+        "ic_tests/fecor": "20140101",
+        
+        "simulation": "20140701",
+    }""")
+    args_parser.add_argument("-s", "--stp", type=str,
+                             help="""    stop date, not included, usually it would be the day after the last trade date, such as
+    "20230619" if last trade date is "20230616" """)
+    args_parser.add_argument("-p", "--process", type=int, default=5,
+                             help="""    number of process to be called when calculating, default = 5""")
+    args_parser.add_argument("-f", "--factor", type=str, default="",
+                             help="""    optional, must be provided if switch = {'factors_exposure'},
+    use this to decide which factor, available options = {
+    'basis', 'beta',
+    'csp', 'csr',
+    'ctp', 'ctr',
+    'cv',
+    'cvp', 'cvr',
+    'hp',
+    'mtm',
+    'rsw',
+    'sgm',
+    'size', 'skew', 'to',
+    'ts',
+    'vol',
+    }""")
+    args_parser.add_argument("-t", "--type", type=str, choices=("v", "m", "a"),
+                             help="""    v = portfolios with signals derived from vanilla pure factors
+    m = portfolios with signals derived from pure factors with timing, methods = moving average
+    a = allocations, both raw and pure
     """)
 
     args = args_parser.parse_args()
     switch = args.switch.upper()
-    run_mode = None if switch in ["IR", "MR", "ICS", "ICNS", "ICDS", "ICC", "FECOR", "SIMU", "EVAL", "BY"] else args.mode.upper()
+    run_mode = None if switch in ["IR", "MR",
+                                  "ICS", "ICNS", "ICDS", "ICC", "FECOR",
+                                  "SIMU", "EVAL", "BY"] else args.mode.upper()
     bgn_date, stp_date = args.bgn, args.stp
     proc_num = args.process
     factor = args.factor.upper() if switch in ["FE"] else None
@@ -354,7 +389,7 @@ if __name__ == "__main__":
             factors_exposure_neutral_dir=factors_exposure_neutral_dir,
             database_structure=database_structure,
         )
-    elif switch in ["DELN"]:
+    elif switch in ["DLN"]:
         cal_factors_normalize_and_delinear_mp(
             proc_num=proc_num, pids=list(factors_pool_options.keys()),
             selected_factors_pool=factors_pool_options["P3"],
@@ -428,18 +463,6 @@ if __name__ == "__main__":
             calendar_path=calendar_path,
             database_structure=database_structure,
         )
-    elif switch in ["OPT"]:
-        cal_signals_opt_raw_and_pure_mp(
-            proc_num=proc_num,
-            portfolio_ids=list(raw_portfolio_options) + list(pure_portfolio_options),
-            mov_ave_lens=test_windows,
-            run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
-            minimum_abs_weight=minimum_abs_weight,
-            src_dir=signals_allocation_dir,
-            signals_opt_dir=signals_opt_dir,
-            calendar_path=calendar_path,
-            database_structure=database_structure,
-        )
     elif switch in ["OPTV"]:
         cal_signals_opt_vanilla_mp(
             proc_num=proc_num,
@@ -461,6 +484,18 @@ if __name__ == "__main__":
             run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
             minimum_abs_weight=minimum_abs_weight,
             src_dir=signals_dir,
+            signals_opt_dir=signals_opt_dir,
+            calendar_path=calendar_path,
+            database_structure=database_structure,
+        )
+    elif switch in ["OPT"]:
+        cal_signals_opt_raw_and_pure_mp(
+            proc_num=proc_num,
+            portfolio_ids=list(raw_portfolio_options) + list(pure_portfolio_options),
+            mov_ave_lens=test_windows,
+            run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
+            minimum_abs_weight=minimum_abs_weight,
+            src_dir=signals_allocation_dir,
             signals_opt_dir=signals_opt_dir,
             calendar_path=calendar_path,
             database_structure=database_structure,
