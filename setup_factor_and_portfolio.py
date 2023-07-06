@@ -69,11 +69,9 @@ ic_tests_delinear_dir = os.path.join(factors_library_dir, "ic_tests_delinear")
 
 # portfolio
 portfolio_dir = os.path.join(futures_dir, global_config["futures"]["cta_dir"])
-factors_return_reformat_dir = os.path.join(portfolio_dir, "factors_return_reformat")
 signals_dir = os.path.join(portfolio_dir, "signals")
 signals_allocation_dir = os.path.join(portfolio_dir, "signals_allocation")
 by_year_dir = os.path.join(portfolio_dir, "by_year_allocation")
-misc_dir = os.path.join(portfolio_dir, "misc")
 signals_opt_dir = os.path.join(portfolio_dir, "signals_opt")
 simulations_opt_dir = os.path.join(portfolio_dir, "simulations_opt")
 evaluations_opt_dir = os.path.join(portfolio_dir, "evaluations_opt")
@@ -98,7 +96,6 @@ if __name__ == "__main__":
     check_and_mkdir(ic_tests_delinear_dir)
 
     check_and_mkdir(portfolio_dir)
-    check_and_mkdir(factors_return_reformat_dir)
     check_and_mkdir(signals_dir)
     check_and_mkdir(signals_allocation_dir)
     check_and_mkdir(signals_opt_dir)
@@ -106,6 +103,5 @@ if __name__ == "__main__":
     check_and_mkdir(evaluations_opt_dir)
     check_and_mkdir(os.path.join(evaluations_opt_dir, "by_comb_id"))
     check_and_mkdir(by_year_dir)
-    check_and_mkdir(misc_dir)
 
     print("... directory system for this project has been established.")
