@@ -101,10 +101,7 @@ class CCalculatorPosAndTrades(object):
         sig_df.to_csv(sig_path, float_format="%.6f", index=False)
         return 0
 
-    def cal_simu_trades(self, sig_id: str, exe_date: str):
-        this_sig_date = self.m_calendar.get_next_date(exe_date, -1)
-        prev_sig_date = self.m_calendar.get_next_date(exe_date, -2)
-        prev_exe_date, this_exe_date = this_sig_date, exe_date
+    def __get_merge_pos_df(self, sig_id: str, prev_sig_date: str, prev_exe_date: str, this_sig_date: str, this_exe_date: str) -> pd.DataFrame:
         prev_sig_file = f"simu-sig_{prev_sig_date}-exe_{prev_exe_date}-{sig_id}.csv.gz"
         this_sig_file = f"simu-sig_{this_sig_date}-exe_{this_exe_date}-{sig_id}.csv.gz"
         prev_date_dir = os.path.join(self.m_simu_positions_and_trades_dir, prev_exe_date[0:4], prev_exe_date)
@@ -116,36 +113,57 @@ class CCalculatorPosAndTrades(object):
         except FileNotFoundError:
             print(f"... signal position data for {sig_id} with sig_date = {prev_sig_date}, exe_date = {prev_exe_date} are not found")
             print("... Program fails to continue, please check again.")
-            return 0
+            return pd.DataFrame()
         try:
             this_sig_df = pd.read_csv(this_sig_path)
         except FileNotFoundError:
             print(f"... signal position data for {sig_id} with sig_date = {this_sig_date}, exe_date = {this_exe_date} are not found")
             print("... Program fails to continue, please check again.")
-            return 0
-
+            return pd.DataFrame()
         merge_pos_df = pd.merge(
             left=prev_sig_df[["instrument", "contract", "direction", "contractMultiplier", "quantity"]],
-            right=this_sig_df[["instrument", "contract", "direction", "contractMultiplier", "quantity", "marketValue", "marketValueProp"]],
-            on=["instrument", "contract", "direction", "contractMultiplier"], how="outer", suffixes=("_prev", "_this")
+            right=this_sig_df[["instrument", "contract", "direction", "contractMultiplier", "quantity", "value", "marketValue", "marketValueProp"]],
+            on=["instrument", "contract", "direction", "contractMultiplier"], how="outer", suffixes=("Prev", "This")
         )
         merge_pos_df.fillna(0, inplace=True)
-        merge_pos_df["quantity_diff"] = merge_pos_df["quantity_this"] - merge_pos_df["quantity_prev"]
-        merge_pos_df["exe_prc"] = merge_pos_df.apply(
+        merge_pos_df["quantityDiff"] = merge_pos_df["quantityThis"] - merge_pos_df["quantityPrev"]
+        merge_pos_df["exePrc"] = merge_pos_df.apply(
             lambda z: self.m_mmd.inquiry_price_at_date(z["contract"], z["instrument"], this_exe_date, "close"), axis=1)
-        merge_pos_file = f"merged-sig_{this_sig_date}-exe_{this_exe_date}-{sig_id}.csv.gz"
+        return merge_pos_df
+
+    def __save_merge_pos_df(self, merge_pos_df: pd.DataFrame, sig_id: str, this_sig_date: str, this_exe_date: str):
+        # format adjust
+        merge_pos_df[["quantityPrev", "quantityThis", "quantityDiff"]] = merge_pos_df[["quantityPrev", "quantityThis", "quantityDiff"]].astype(int)
+        merge_pos_df["marketValue"] = merge_pos_df["marketValue"].map(lambda _: f"{_:.2f}")
+        merge_pos_df["exePrc"] = merge_pos_df["exePrc"].map(lambda _: f"{_:.2f}")
+
+        # save
+        merge_pos_file = f"merged-sig_{this_sig_date}-exe_{this_exe_date}-{sig_id}.csv"
         merge_pos_path = os.path.join(self.m_simu_positions_and_trades_dir, this_exe_date[0:4], this_exe_date, merge_pos_file)
-        merge_pos_df.to_csv(merge_pos_path, index=False)
+        merge_pos_df.to_csv(merge_pos_path, index=False, float_format="%.6f")
+        return 0
 
-        market_exposure = merge_pos_df["marketValue"] @ merge_pos_df["direction"]
-        market_value_sum = merge_pos_df["marketValue"].abs().sum()
+    def __save_trades_df(self, trades_df: pd.DataFrame, sig_id: str, this_sig_date: str, this_exe_date: str):
+        # format adjust
+        trades_file = f"trades-sig_{this_sig_date}-exe_{this_exe_date}-{sig_id}.csv"
+        trades_path = os.path.join(self.m_simu_positions_and_trades_dir, this_exe_date[0:4], this_exe_date, trades_file)
+        trades_df.to_csv(trades_path, index=False, float_format="%.2f")
+        return 0
 
+    def cal_simu_trades(self, sig_id: str, exe_date: str):
+        this_sig_date = self.m_calendar.get_next_date(exe_date, -1)
+        prev_sig_date = self.m_calendar.get_next_date(exe_date, -2)
+        prev_exe_date, this_exe_date = this_sig_date, exe_date
+        merge_pos_df = self.__get_merge_pos_df(sig_id,
+                                               prev_sig_date=prev_sig_date, prev_exe_date=prev_exe_date,
+                                               this_sig_date=this_sig_date, this_exe_date=this_exe_date)
+        if merge_pos_df.empty:
+            return 0
         trades_data = []
-        merge_pos_df.set_index(["contract", "direction"], inplace=True)
-        for contract, direction in merge_pos_df.index:
-            qty_diff = merge_pos_df.at[(contract, direction), "quantity_diff"]
-            exe_prc = merge_pos_df.at[(contract, direction), "exe_prc"]
-            contract_multiplier = merge_pos_df.at[(contract, direction), "contractMultiplier"]
+        for iter_tuple in merge_pos_df.itertuples():
+            contract, direction = getattr(iter_tuple, "contract"), getattr(iter_tuple, "direction")
+            qty_diff, exe_prc = getattr(iter_tuple, "quantityDiff"), getattr(iter_tuple, "exePrc")
+            contract_multiplier = getattr(iter_tuple, "contractMultiplier")
             amt = abs(qty_diff) * exe_prc * contract_multiplier
             if qty_diff != 0:
                 trades_data.append({
@@ -158,7 +176,14 @@ class CCalculatorPosAndTrades(object):
                 })
         trades_df = pd.DataFrame(trades_data)
         trades_df.sort_values(by=["direction", "operation"], ascending=[False, True], inplace=True)
+
+        # --- extra info
+        market_exposure = merge_pos_df["marketValue"] @ merge_pos_df["direction"]
+        market_value_sum = merge_pos_df["marketValue"].abs().sum()
         trades_summary_df = pd.pivot_table(data=trades_df, index="direction", columns="operation", values="amt", aggfunc=sum) / 1e4
+
+        self.__save_merge_pos_df(merge_pos_df, sig_id=sig_id, this_sig_date=this_sig_date, this_exe_date=this_exe_date)
+        self.__save_trades_df(trades_df, sig_id, this_sig_date, this_exe_date)
         print(f"... {sig_id} @ {exe_date} market exposure  = {market_exposure:10.2f}, market value sum = {market_value_sum:10.2f}")
         return 0
 
