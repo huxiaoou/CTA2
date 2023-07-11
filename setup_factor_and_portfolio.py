@@ -75,6 +75,7 @@ by_year_dir = os.path.join(portfolio_dir, "by_year_allocation")
 signals_opt_dir = os.path.join(portfolio_dir, "signals_opt")
 simulations_opt_dir = os.path.join(portfolio_dir, "simulations_opt")
 evaluations_opt_dir = os.path.join(portfolio_dir, "evaluations_opt")
+simu_positions_and_trades_dir = os.path.join(portfolio_dir, "simu_positions_and_trades")
 
 if __name__ == "__main__":
     from skyrim.winterhold import check_and_mkdir
@@ -103,5 +104,6 @@ if __name__ == "__main__":
     check_and_mkdir(evaluations_opt_dir)
     check_and_mkdir(os.path.join(evaluations_opt_dir, "by_comb_id"))
     check_and_mkdir(by_year_dir)
+    check_and_mkdir(simu_positions_and_trades_dir)
 
     print("... directory system for this project has been established.")

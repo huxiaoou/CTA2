@@ -41,6 +41,7 @@ from ic_tests.factors_exposure_corr import cal_factors_exposure_corr
 from simulations.simulation import cal_simulations_mp
 from simulations.evaluation import cal_evaluation_signals_mp
 from simulations.evaluation_by_year import evaluate_signal_by_year, plot_signals_nav_by_year
+from simulations.evaluation_positions_and_trades import cal_positions_and_trades_mp
 
 from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_instru_dir, fundamental_by_instru_dir, \
     instruments_return_dir, available_universe_dir, \
@@ -50,7 +51,7 @@ from setup_factor_and_portfolio import major_return_dir, major_minor_dir, md_by_
     factors_return_dir, factors_portfolio_dir, instruments_residual_dir, \
     signals_dir, signals_allocation_dir, signals_opt_dir, \
     ic_tests_dir, ic_tests_delinear_dir, factors_exposure_corr_dir, \
-    simulations_opt_dir, evaluations_opt_dir, by_year_dir, \
+    simulations_opt_dir, evaluations_opt_dir, by_year_dir, simu_positions_and_trades_dir, \
     calendar_path, instrument_info_path
 from config_factor import concerned_instruments_universe, sector_classification, sectors, \
     available_universe_options, test_windows, factors_args, factors, neutral_method, \
@@ -153,16 +154,19 @@ if __name__ == "__main__":
     m = portfolios with signals derived from pure factors with timing, methods = moving average
     a = allocations, both raw and pure
     """)
+    args_parser.add_argument("-e", "--exeDate", type=str,
+                             help="""   format = [YYYYMMDD], used if switch = 'POS', to calculate the positions and trades""")
 
     args = args_parser.parse_args()
     switch = args.switch.upper()
     run_mode = None if switch in ["IR", "MR",
                                   "ICS", "ICNS", "ICDS", "ICC", "FECOR",
-                                  "SIMU", "EVAL", "BY"] else args.mode.upper()
+                                  "SIMU", "EVAL", "BY", "POS"] else args.mode.upper()
     bgn_date, stp_date = args.bgn, args.stp
     proc_num = args.process
     factor = args.factor.upper() if switch in ["FE"] else None
     signals_type = args.type.upper() if switch in ["SIMU", "EVAL"] else None
+    exe_date = args.exeDate.upper() if switch in ["POS"] else None
 
     if switch in ["IR"]:  # "INSTRUMENT RETURN":
         merge_instru_return(
@@ -634,5 +638,20 @@ if __name__ == "__main__":
         plot_signals_nav_by_year("comb_sector_VM020", [(z + "VM020", 1) for z in ["MARKET"] + selected_sectors], evaluations_opt_dir, by_year_dir)
         plot_signals_nav_by_year("comb_style_VM005", [(z + "VM005", 1) for z in selected_factors], evaluations_opt_dir, by_year_dir)
         plot_signals_nav_by_year("comb_style_VM020", [(z + "VM020", 1) for z in selected_factors], evaluations_opt_dir, by_year_dir)
+    elif switch in ["POS"]:
+        cal_positions_and_trades_mp(
+            proc_num=proc_num,
+            sids=["R1M010", "R4M010", "A1M020", "A6M005", "A3M020", "A8M005"],
+            exe_date=exe_date,
+            init_premium=init_premium,
+            instruments_universe=concerned_instruments_universe,
+            signals_opt_dir=signals_opt_dir,
+            md_by_instru_dir=md_by_instru_dir,
+            major_minor_dir=major_minor_dir,
+            simu_positions_and_trades_dir=simu_positions_and_trades_dir,
+            calendar_path=calendar_path,
+            instru_info_tab_path=instrument_info_path,
+            database_structure=database_structure,
+        )
     else:
         print(f"... switch = {switch} is not a legal option, please check again.")
