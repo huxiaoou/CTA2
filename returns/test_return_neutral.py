@@ -19,6 +19,8 @@ def cal_test_return_neutral(
         database_structure: dict[str, CLib1Tab1]):
     # --- calendar
     cne_calendar = CCalendar(t_path=calendar_path)
+    if stp_date is None:
+        stp_date = (dt.datetime.strptime(bgn_date, "%Y%m%d") + dt.timedelta(days=1)).strftime("%Y%m%d")
 
     # --- available universe
     available_universe_lib_structure = database_structure["available_universe"]
