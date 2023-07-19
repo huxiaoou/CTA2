@@ -13,8 +13,7 @@ def load_positions(sig_id: str, sig_date: str,
                    signals_opt_dir: str,
                    database_structure: dict[str, CLib1Tab1]) -> pd.DataFrame:
     # --- init allocation opt lib
-    sig_opt_lib = CManagerLibReader(
-        t_db_save_dir=signals_opt_dir, t_db_name=database_structure[sig_id].m_lib_name)
+    sig_opt_lib = CManagerLibReader(t_db_save_dir=signals_opt_dir, t_db_name=database_structure[sig_id].m_lib_name)
     sig_opt_lib.set_default(database_structure[sig_id].m_tab.m_table_name)
     sig_df = sig_opt_lib.read_by_date(t_trade_date=sig_date, t_value_columns=["instrument", "value"])
     sig_opt_lib.close()
@@ -73,10 +72,10 @@ class CCalculatorPosAndTrades(object):
         return 0
 
     @staticmethod
-    def __estimate_market_value_and_prop(sig_df: pd.DataFrame, date_tag: str, prc_type: str):
+    def __estimate_market_value_and_prop(sig_df: pd.DataFrame, available_amount: float, date_tag: str, prc_type: str):
         prc_lbl = f"{prc_type}_{date_tag}"
         sig_df["marketValue"] = sig_df[prc_lbl] * sig_df["contractMultiplier"] * sig_df["quantity"] / 1e4
-        sig_df["marketValueProp"] = sig_df["marketValue"] / sig_df["marketValue"].sum()
+        sig_df["marketValueProp"] = sig_df["marketValue"] / available_amount
         return 0
 
     def cal_simu_positions(self, sig_id: str, exe_date: str,
@@ -101,24 +100,23 @@ class CCalculatorPosAndTrades(object):
         sig_df.to_csv(sig_path, float_format="%.6f", index=False)
         return 0
 
-    def __get_merge_pos_df(self, sig_id: str, prev_sig_date: str, prev_exe_date: str, this_sig_date: str, this_exe_date: str) -> pd.DataFrame:
-        prev_sig_file = f"simu-sig_{prev_sig_date}-exe_{prev_exe_date}-{sig_id}.csv.gz"
-        this_sig_file = f"simu-sig_{this_sig_date}-exe_{this_exe_date}-{sig_id}.csv.gz"
-        prev_date_dir = os.path.join(self.m_simu_positions_and_trades_dir, prev_exe_date[0:4], prev_exe_date)
-        this_date_dir = os.path.join(self.m_simu_positions_and_trades_dir, this_exe_date[0:4], this_exe_date)
-        prev_sig_path = os.path.join(prev_date_dir, prev_sig_file)
-        this_sig_path = os.path.join(this_date_dir, this_sig_file)
+    def __load_sig_df(self, sig_id: str, sig_date: str, exe_date: str) -> pd.DataFrame:
+        sig_file = f"simu-sig_{sig_date}-exe_{exe_date}-{sig_id}.csv.gz"
+        date_dir = os.path.join(self.m_simu_positions_and_trades_dir, exe_date[0:4], exe_date)
+        sig_path = os.path.join(date_dir, sig_file)
         try:
-            prev_sig_df = pd.read_csv(prev_sig_path)
+            return pd.read_csv(sig_path)
         except FileNotFoundError:
-            print(f"... signal position data for {sig_id} with sig_date = {prev_sig_date}, exe_date = {prev_exe_date} are not found")
+            print(f"... signal position data for {sig_id} with sig_date = {sig_date}, exe_date = {exe_date} are not found")
             print("... Program fails to continue, please check again.")
             return pd.DataFrame()
-        try:
-            this_sig_df = pd.read_csv(this_sig_path)
-        except FileNotFoundError:
-            print(f"... signal position data for {sig_id} with sig_date = {this_sig_date}, exe_date = {this_exe_date} are not found")
-            print("... Program fails to continue, please check again.")
+
+    def __get_merge_pos_df(self, sig_id: str, prev_sig_date: str, prev_exe_date: str, this_sig_date: str, this_exe_date: str) -> pd.DataFrame:
+        prev_sig_df = self.__load_sig_df(sig_id, prev_sig_date, prev_exe_date)
+        this_sig_df = self.__load_sig_df(sig_id, this_sig_date, this_exe_date)
+        if prev_sig_df.empty:
+            return pd.DataFrame()
+        if this_sig_df.empty:
             return pd.DataFrame()
         merge_pos_df = pd.merge(
             left=prev_sig_df[["instrument", "contract", "direction", "contractMultiplier", "quantity"]],
@@ -150,7 +148,14 @@ class CCalculatorPosAndTrades(object):
         trades_df.to_csv(trades_path, index=False, float_format="%.2f")
         return 0
 
-    def cal_simu_trades(self, sig_id: str, exe_date: str):
+    def __save_pnl_df(self, pnl_df: pd.DataFrame, sig_id: str, open_date: str, close_date: str):
+        # format adjust
+        pnl_file = f"pnl-openDate_{open_date}-closeDate_{close_date}-{sig_id}.csv"
+        pnl_path = os.path.join(self.m_simu_positions_and_trades_dir, close_date[0:4], close_date, pnl_file)
+        pnl_df.to_csv(pnl_path, index=False, float_format="%.4f")
+        return 0
+
+    def cal_simu_trades(self, sig_id: str, exe_date: str, verbose: bool = False):
         this_sig_date = self.m_calendar.get_next_date(exe_date, -1)
         prev_sig_date = self.m_calendar.get_next_date(exe_date, -2)
         prev_exe_date, this_exe_date = this_sig_date, exe_date
@@ -170,7 +175,7 @@ class CCalculatorPosAndTrades(object):
                     "contract": contract,
                     "direction": direction,
                     "operation": "open" if qty_diff > 0 else "close",
-                    "quantity": abs(qty_diff),
+                    "quantity": int(abs(qty_diff)),
                     "exePrice": exe_prc,
                     "amt": amt,
                 })
@@ -181,10 +186,30 @@ class CCalculatorPosAndTrades(object):
         market_exposure = merge_pos_df["marketValue"] @ merge_pos_df["direction"]
         market_value_sum = merge_pos_df["marketValue"].abs().sum()
         trades_summary_df = pd.pivot_table(data=trades_df, index="direction", columns="operation", values="amt", aggfunc=sum) / 1e4
+        if verbose:
+            print(trades_summary_df)
 
         self.__save_merge_pos_df(merge_pos_df, sig_id=sig_id, this_sig_date=this_sig_date, this_exe_date=this_exe_date)
         self.__save_trades_df(trades_df, sig_id, this_sig_date, this_exe_date)
         print(f"... {sig_id} @ {exe_date} market exposure  = {market_exposure:10.2f}, market value sum = {market_value_sum:10.2f}")
+        return 0
+
+    def cal_simu_pnl(self, sig_id: str, exe_date: str, available_amount: float):
+        prev_sig_date = self.m_calendar.get_next_date(exe_date, -2)
+        prev_exe_date = self.m_calendar.get_next_date(exe_date, -1)
+        open_date = prev_exe_date[0:4] + "-" + prev_exe_date[4:6] + "-" + prev_exe_date[6:8]
+        close_date = exe_date[0:4] + "-" + exe_date[4:6] + "-" + exe_date[6:8]
+        sig_df = self.__load_sig_df(sig_id, prev_sig_date, prev_exe_date)
+        self.__match_price(sig_df, trade_date=exe_date, date_tag="mature", prc_type="close")
+        sig_df["ret"] = sig_df["close_mature"] / sig_df["close_exe"] - 1
+        ret_theory = sig_df["value"] @ sig_df["ret"]
+        sig_df["pnl"] = (sig_df["close_mature"] - sig_df["close_exe"]) * sig_df["quantity"] * sig_df["contractMultiplier"] * sig_df["direction"]
+        ret_actual = (pnl_sum := sig_df["pnl"].sum()) / available_amount
+        pnl_df = pd.DataFrame({"sid": [sig_id],
+                               "openDate": [open_date], "closeDate": [close_date],
+                               "retTheory": [ret_theory * 100], "pnl": [f"{pnl_sum:.2f}"], "retActual": [ret_actual * 100]})
+        self.__save_pnl_df(pnl_df, sig_id=sig_id, open_date=prev_exe_date, close_date=exe_date)
+        print(pnl_df)
         return 0
 
 
@@ -221,6 +246,12 @@ def cal_positions_and_trades_mp(
     pool = mp.Pool(processes=proc_num)
     for sid in sids:
         pool.apply_async(cpt.cal_simu_trades, args=(sid, exe_date))
+    pool.close()
+    pool.join()
+
+    pool = mp.Pool(processes=proc_num)
+    for sid in sids:
+        pool.apply_async(cpt.cal_simu_pnl, args=(sid, exe_date, init_premium))
     pool.close()
     pool.join()
 
