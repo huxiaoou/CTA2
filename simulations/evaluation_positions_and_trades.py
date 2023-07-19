@@ -91,7 +91,7 @@ class CCalculatorPosAndTrades(object):
         self.__match_price(sig_df, trade_date=exe_date, date_tag="exe", prc_type="close")
         self.__match_instrument_contract_multiplier(sig_df)
         CCalculatorPosAndTrades.__estimate_direction_and_quantity(sig_df, available_amount=available_amount, date_tag="sig", prc_type="close")
-        CCalculatorPosAndTrades.__estimate_market_value_and_prop(sig_df, date_tag="exe", prc_type="close")
+        CCalculatorPosAndTrades.__estimate_market_value_and_prop(sig_df, available_amount=available_amount, date_tag="exe", prc_type="close")
         pd.set_option("display.width", 0)
         check_and_mkdir(year_dir := os.path.join(self.m_simu_positions_and_trades_dir, exe_date[0:4]))
         check_and_mkdir(date_dir := os.path.join(year_dir, exe_date))
