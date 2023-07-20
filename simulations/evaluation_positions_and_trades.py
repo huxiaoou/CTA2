@@ -75,7 +75,7 @@ class CCalculatorPosAndTrades(object):
     def __estimate_market_value_and_prop(sig_df: pd.DataFrame, available_amount: float, date_tag: str, prc_type: str):
         prc_lbl = f"{prc_type}_{date_tag}"
         sig_df["marketValue"] = sig_df[prc_lbl] * sig_df["contractMultiplier"] * sig_df["quantity"] / 1e4
-        sig_df["marketValueProp"] = sig_df["marketValue"] / available_amount
+        sig_df["marketValueProp"] = sig_df["marketValue"] / available_amount * 1e4
         return 0
 
     def cal_simu_positions(self, sig_id: str, exe_date: str,
