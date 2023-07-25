@@ -73,11 +73,11 @@ def neutralize_one_factor(factor: str,
     available_universe_lib.close()
 
     input_df = pd.merge(left=factor_df, right=weight_df, on=["trade_date", "instrument"], how="inner")
-    res_srs = input_df.groupby(by="trade_date").apply(
+    res_df = input_df.groupby(by="trade_date").apply(
         neutralize_one_factor_one_day, mother_df=mother_universe_df,
         neutral_method=neutral_method, weight_id=__weight_id, sector_df=sector_df
     )
-    update_df = pd.DataFrame(res_srs).reset_index()
+    update_df = res_df.stack().reset_index()
     factor_neutral_lib.update(t_update_df=update_df, t_using_index=False)
     factor_neutral_lib.close()
     return 0
