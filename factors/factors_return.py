@@ -22,7 +22,8 @@ def cal_risk_factor_return_colinear(t_r: np.ndarray, t_x: np.ndarray, t_instru_w
     _p = len(t_sector_wgt)
     _q = _K - 1 - _p
     _R11_up_ = np.diag(np.ones(_p))  # p x p
-    _R11_dn_ = np.concatenate(([0], -t_sector_wgt[:-1] / t_sector_wgt[-1]))  # 1 x p, linear constrain: \sum_{i=1}^kw_iR_i = 0, R_i: sector return, output of this function
+    _R11_dn_ = np.concatenate(
+        ([0], -t_sector_wgt[:-1] / t_sector_wgt[-1]))  # 1 x p, linear constrain: \sum_{i=1}^kw_iR_i = 0, R_i: sector return, output of this function
     _R11 = np.vstack((_R11_up_, _R11_dn_))  # (p + 1) x p
     _R12 = np.zeros(shape=(_p + 1, _q))
     _R21 = np.zeros(shape=(_q, _p))
@@ -193,12 +194,12 @@ def factors_return(
 
     fac_ret_dfs, ins_res_dfs, fac_ptf_dfs = [], [], []
     reg_square_data = []
-    all_reg_df.groupby(by="trade_date").apply(reg_one_day, x_lbls=x_lbls, y_lbl=y_lbl,
-                                              weight_id=weight_id,
-                                              selected_sectors_list=selected_sectors_list,
-                                              fac_ret_dfs=fac_ret_dfs, ins_res_dfs=ins_res_dfs, fac_ptf_dfs=fac_ptf_dfs,
-                                              reg_square_data=reg_square_data
-                                              )
+    all_reg_df.groupby(by="trade_date", group_keys=True).apply(reg_one_day, x_lbls=x_lbls, y_lbl=y_lbl,
+                                                               weight_id=weight_id,
+                                                               selected_sectors_list=selected_sectors_list,
+                                                               fac_ret_dfs=fac_ret_dfs, ins_res_dfs=ins_res_dfs, fac_ptf_dfs=fac_ptf_dfs,
+                                                               reg_square_data=reg_square_data
+                                                               )
     update_fac_ret_df = pd.concat(fac_ret_dfs, axis=0, ignore_index=False).sort_index(ascending=True)
     update_ins_res_df = pd.concat(ins_res_dfs, axis=0, ignore_index=False).sort_index(ascending=True)
     update_fac_ptf_df = pd.concat(fac_ptf_dfs, axis=0, ignore_index=False).sort_index(ascending=True)

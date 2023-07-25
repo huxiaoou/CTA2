@@ -78,7 +78,7 @@ def ic_test(
         on=["base_date", "instrument"], how="inner", suffixes=("_e", "_r")
     )
 
-    res_srs = test_input_df.groupby(by="trade_date").apply(corr_one_day, x="value_e", y="value_r", method="spearman")
+    res_srs = test_input_df.groupby(by="trade_date", group_keys=True).apply(corr_one_day, x="value_e", y="value_r", method="spearman")
     update_df = pd.DataFrame({"value": res_srs})
     ic_test_lib_id = f"ic-{factor}-TW{test_window:03d}"
     ic_test_lib_structure = database_structure[ic_test_lib_id]

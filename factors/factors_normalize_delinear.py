@@ -188,7 +188,7 @@ def factors_normalize_and_delinear(
     all_factor_exposure_df.sort_values("trade_date", inplace=True)
 
     norm_dfs, deln_dfs = [], []
-    all_factor_exposure_df.groupby(by="trade_date").apply(
+    all_factor_exposure_df.groupby(by="trade_date", group_keys=True).apply(
         norm_and_delinear_one_day, weight_id=__weight_id, neutral_method=neutral_method,
         selected_factors_pool=selected_factors_pool, selected_sectors_list=selected_sectors_list,
         norm_dfs=norm_dfs, deln_dfs=deln_dfs,

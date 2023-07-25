@@ -8,7 +8,7 @@ from skyrim.falkreath import CManagerLibReader, CManagerLibWriter, CLib1Tab1
 
 def neutralize_one_factor_one_day(
         df: pd.DataFrame, mother_df: pd.DataFrame, neutral_method: str,
-        weight_id: str, sector_df: pd.DataFrame):
+        weight_id: str, sector_df: pd.DataFrame) -> pd.Series:
     xdf = pd.merge(left=mother_df, right=df, on="instrument", how="inner").set_index("instrument")
     xdf["value_norm"] = transform_dist(t_exposure_srs=xdf["value"])
     if neutral_method == "WE":
@@ -73,11 +73,23 @@ def neutralize_one_factor(factor: str,
     available_universe_lib.close()
 
     input_df = pd.merge(left=factor_df, right=weight_df, on=["trade_date", "instrument"], how="inner")
-    res_df = input_df.groupby(by="trade_date").apply(
+    res_agg = input_df.groupby(by="trade_date", group_keys=True).apply(
         neutralize_one_factor_one_day, mother_df=mother_universe_df,
-        neutral_method=neutral_method, weight_id=__weight_id, sector_df=sector_df
+        neutral_method=neutral_method, weight_id=__weight_id, sector_df=sector_df,
     )
-    update_df = res_df.stack().reset_index()
+
+    # type of res_agg may vary according to the result:
+    # if length of each day is the same, it will be a DataFrame(this happens when only a few days are calculated)
+    # otherwise it would be a DataFrame(this happens when all days in history are calculated)
+
+    if type(res_agg) == pd.Series:
+        update_df = res_agg.reset_index()
+    elif type(res_agg) == pd.DataFrame:
+        update_df = res_agg.stack().reset_index()
+    else:
+        print("... Wrong type of result when calculate factors neutral.")
+        print("... The result is neither a pd.Series nor a pd.DataFrame.")
+        update_df = pd.DataFrame()
     factor_neutral_lib.update(t_update_df=update_df, t_using_index=False)
     factor_neutral_lib.close()
     return 0

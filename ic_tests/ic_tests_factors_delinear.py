@@ -59,7 +59,7 @@ def ic_test_delinear(pid: str, selected_factors_pool: list[str],
         left=factors_exposure_df, right=test_return_df_expand,
         on=["base_date", "instrument"], how="inner"
     )
-    res_df = test_input_df.groupby(by="trade_date").apply(corr_one_day_delinear, xs=selected_factors_pool, y="value", method="spearman")
+    res_df = test_input_df.groupby(by="trade_date", group_keys=True).apply(corr_one_day_delinear, xs=selected_factors_pool, y="value", method="spearman")
     update_df = res_df.stack().reset_index(level=1)
 
     # --- initialize output lib
