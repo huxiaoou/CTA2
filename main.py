@@ -482,7 +482,7 @@ if __name__ == "__main__":
     elif switch in ["OPTM"]:
         cal_signals_opt_ma_mp(
             proc_num=proc_num,
-            factors=available_factors,
+            factors=timing_factors,
             mov_ave_lens=test_windows,
             fast_n_slow_n_comb=fast_n_slow_n_comb,
             run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
