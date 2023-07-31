@@ -118,5 +118,6 @@ def cal_test_return_neutral_mp(proc_num: int,
     pool.close()
     pool.join()
     t1 = dt.datetime.now()
+    print("\n... test return neutral calculated")
     print("... total time consuming: {:.2f} seconds".format((t1 - t0).total_seconds()))
     return 0

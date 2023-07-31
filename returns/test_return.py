@@ -65,5 +65,6 @@ def cal_test_return_mp(proc_num: int,
     pool.close()
     pool.join()
     t1 = dt.datetime.now()
+    print("\n... test return calculated")
     print("... total time consuming: {:.2f} seconds".format((t1 - t0).total_seconds()))
     return 0

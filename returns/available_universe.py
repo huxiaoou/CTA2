@@ -72,7 +72,7 @@ def cal_available_universe(
     available_universe_lib.update(t_update_df=update_df, t_using_index=True)
     available_universe_lib.close()
 
-    print("... available universe are calculated")
+    print("\n... available universe are calculated")
     print("... total time consuming: {:.2f} seconds".format((dt.datetime.now() - t0).total_seconds()))
 
     return 0

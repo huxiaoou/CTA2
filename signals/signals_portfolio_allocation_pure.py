@@ -79,5 +79,6 @@ def cal_signals_pure_mp(
     pool.close()
     pool.join()
     t1 = dt.datetime.now()
+    print("\n... portfolio pure calculated")
     print("... total time consuming: {:.2f} seconds".format((t1 - t0).total_seconds()))
     return 0

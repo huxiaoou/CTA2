@@ -66,5 +66,6 @@ def cal_ic_tests_delinear_summary_mp(
     pool.close()
     pool.join()
     t1 = dt.datetime.now()
+    print("\n... ICDS calculated")
     print("... total time consuming: {:.2f} seconds".format((t1 - t0).total_seconds()))
     return 0

@@ -220,5 +220,6 @@ def cal_factors_normalize_and_delinear_mp(proc_num: int, pids: list[int], **kwar
     pool.close()
     pool.join()
     t1 = dt.datetime.now()
+    print("... factors DELINEAR calculated")
     print("... total time consuming: {:.2f} seconds".format((t1 - t0).total_seconds()))
     return 0

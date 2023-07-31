@@ -68,5 +68,6 @@ def cal_factors_exposure_to_mp(
     pool.close()
     pool.join()
     t1 = dt.datetime.now()
+    print("... factor TO calculated")
     print("... total time consuming: {:.2f} seconds".format((t1 - t0).total_seconds()))
     return 0
