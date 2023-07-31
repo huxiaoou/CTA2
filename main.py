@@ -532,7 +532,7 @@ if __name__ == "__main__":
         cal_ic_tests_delinear_mp(
             proc_num=proc_num,
             pids=[pid], factors_pool_options=factors_pool_options,
-            neutral_methods=[neutral_method], test_windows=test_windows, factors_return_lags=factors_return_lags,
+            neutral_methods=[neutral_method], test_windows=test_windows, factors_return_lags=[0],
             run_mode=run_mode, bgn_date=bgn_date, stp_date=stp_date,
             ic_tests_delinear_dir=ic_tests_delinear_dir,
             exposure_dir=factors_exposure_delinear_dir,
@@ -558,7 +558,7 @@ if __name__ == "__main__":
         cal_ic_tests_delinear_summary_mp(
             proc_num=proc_num,
             pids=[pid], factors_pool_options=factors_pool_options,
-            neutral_methods=[neutral_method], test_windows=test_windows, factors_return_lags=factors_return_lags,
+            neutral_methods=[neutral_method], test_windows=test_windows, factors_return_lags=[0],
             ic_tests_delinear_dir=ic_tests_delinear_dir,
             database_structure=database_structure,
         )
