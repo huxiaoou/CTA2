@@ -32,6 +32,12 @@ pure_portfolio_options = {
     # Pure Factors: Long Term
     "A1": {
         FAR_END_DATE_IN_THE_FUTURE: {},
+        "20230802": {
+            "BASIS147": "pure_factors_VANILLA.BASIS147.TW{:03d}".format(20),
+            "RSW252HL063": "pure_factors_VANILLA.RSW252HL063.TW{:03d}".format(20),
+            "TS126": "pure_factors_VANILLA.TS126.TW{:03d}".format(20),
+            "CSP189": "pure_factors_VANILLA.CSP189.TW{:03d}".format(20),
+        },
         "20230607": {
             "BASIS147": "pure_factors_VANILLA.BASIS147.TW{:03d}".format(20),
             "BETA021": "pure_factors_VANILLA.BETA021.TW{:03d}".format(20),
@@ -61,6 +67,12 @@ pure_portfolio_options = {
     # Pure Factors: Short Term
     "A6": {
         FAR_END_DATE_IN_THE_FUTURE: {},
+        "20230802": {
+            "BASIS147": "pure_factors_VANILLA.BASIS147.TW{:03d}".format(5),
+            "RSW252HL063": "pure_factors_VANILLA.RSW252HL063.TW{:03d}".format(5),
+            "TS126": "pure_factors_VANILLA.TS126.TW{:03d}".format(5),
+            "CSP189": "pure_factors_VANILLA.CSP189.TW{:03d}".format(5),
+        },
         "20230607": {
             "BASIS147": "pure_factors_VANILLA.BASIS147.TW{:03d}".format(5),
             "BETA021": "pure_factors_VANILLA.BETA021.TW{:03d}".format(5),
@@ -90,6 +102,17 @@ pure_portfolio_options = {
     # Pure Factors: Long Term + SectorTiming
     "A3": {  # A3 = A1 + SectorTiming
         FAR_END_DATE_IN_THE_FUTURE: {},
+        "20230802": {
+            "BASIS147": "pure_factors_VANILLA.BASIS147.TW{:03d}".format(20),
+            "RSW252HL063": "pure_factors_VANILLA.RSW252HL063.TW{:03d}".format(20),
+            "TS126": "pure_factors_VANILLA.TS126.TW{:03d}".format(20),
+            "CSP189": "pure_factors_VANILLA.CSP189.TW{:03d}".format(20),
+
+            "BLACK": "pure_factors_MA.BLACK.TW{:03d}.FAST{:03d}.SLOW{:03d}".format(15, 21, 126),
+            "CHEM": "pure_factors_MA.CHEM.TW{:03d}.FAST{:03d}.SLOW{:03d}".format(15, 21, 189),
+            "OIL": "pure_factors_MA.OIL.TW{:03d}.FAST{:03d}.SLOW{:03d}".format(15, 21, 126),
+            "MISC": "pure_factors_MA.MISC.TW{:03d}.FAST{:03d}.SLOW{:03d}".format(10, 21, 126),
+        },
         "20230607": {
             "BASIS147": "pure_factors_VANILLA.BASIS147.TW{:03d}".format(20),
             "BETA021": "pure_factors_VANILLA.BETA021.TW{:03d}".format(20),
@@ -140,6 +163,16 @@ pure_portfolio_options = {
     # Pure Factors: Short Term + SectorTiming
     "A8": {  # A8 =  A6 + SectorTiming
         FAR_END_DATE_IN_THE_FUTURE: {},
+        "20230802": {
+            "BASIS147": "pure_factors_VANILLA.BASIS147.TW{:03d}".format(5),
+            "RSW252HL063": "pure_factors_VANILLA.RSW252HL063.TW{:03d}".format(5),
+            "TS126": "pure_factors_VANILLA.TS126.TW{:03d}".format(5),
+            "CSP189": "pure_factors_VANILLA.CSP189.TW{:03d}".format(5),
+
+            "MARKET": "pure_factors_MA.MARKET.TW{:03d}.FAST{:03d}.SLOW{:03d}".format(5, 5, 126),
+            "CHEM": "pure_factors_MA.CHEM.TW{:03d}.FAST{:03d}.SLOW{:03d}".format(5, 5, 126),
+            "MISC": "pure_factors_MA.MISC.TW{:03d}.FAST{:03d}.SLOW{:03d}".format(5, 5, 126),
+        },
         "20230607": {
             "BASIS147": "pure_factors_VANILLA.BASIS147.TW{:03d}".format(5),
             "BETA021": "pure_factors_VANILLA.BETA021.TW{:03d}".format(5),
@@ -217,6 +250,7 @@ test_signals = {
 
 if __name__ == "__main__":
     import pandas as pd
+
     print("Total number of factors = {}".format(len(factors)))  # 103
     print("\n".join(factors))
     print(selected_sectors)
